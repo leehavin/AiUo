@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+option csharp_namespace = "GrpcDemo.Shared";
+
+package GrpcDemo;
+
+// 问候服务定义
+service Greeter {
+  // 发送问候
+  rpc SayHello (HelloRequest) returns (HelloReply);
+  
+  // 发送多次问候（服务端流式）
+  rpc SayHellosServerStream (HelloRequest) returns (stream HelloReply);
+  
+  // 发送多次问候（客户端流式）
+  rpc SayHellosClientStream (stream HelloRequest) returns (HelloSummary);
+  
+  // 双向流式问候
+  rpc SayHellosBidirectional (stream HelloRequest) returns (stream HelloReply);
+}
+
+// 问候请求消息
+message HelloRequest {
+  string name = 1;
+  string language = 2;
+}
+
+// 问候回复消息
+message HelloReply {
+  string message = 1;
+  string timestamp = 2;
+}
+
+// 问候汇总消息
+message HelloSummary {
+  int32 request_count = 1;
+  string message = 2;
+}
