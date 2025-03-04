@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <Description>RabbitMQ异常处理和重试方案</Description>
+    <Version>1.0.0.0</Version>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="DAL\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AiUo.Data.SqlSugar\AiUo.Data.SqlSugar.csproj" />
+    <ProjectReference Include="..\AiUo.Extensions.RabbitMQ\AiUo.Extensions.RabbitMQ.csproj" />
+  </ItemGroup>
+</Project>

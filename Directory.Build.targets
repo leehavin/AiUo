@@ -1,0 +1,8 @@
+<Project>
+	<ItemGroup>
+		<Compile Update="**\*.partial.cs">
+			<DependentUpon>$([System.String]::Copy(%(Filename)).Replace('.partial', '.cs'))</DependentUpon>
+			<DesignTime>True</DesignTime>
+		</Compile>
+	</ItemGroup>
+</Project>

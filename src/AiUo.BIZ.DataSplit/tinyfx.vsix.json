@@ -1,0 +1,17 @@
+{
+  "SqlSugar": {
+    "DefaultElement": "demo",
+    "Elements": [
+      {
+        "Name": "demo",
+        "DatabaseType": 0,
+        "ConnectionString": "server=192.168.1.120;port=3306;database=demo;uid=root;pwd=root;sslmode=Disabled;allowuservariables=True;AllowLoadLocalInfile=true;Pooling=false",
+        "OutputPath": "DAL",
+        "Namespace": "AiUo.BIZ.DataSplit.DAL",
+        "UseSubPath": false,
+        "UseSugarConfigId": false,
+        "Partial": 1
+      }
+    ]
+  }
+}

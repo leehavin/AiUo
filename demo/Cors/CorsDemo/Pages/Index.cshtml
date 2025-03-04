@@ -1,0 +1,38 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">CORS Test</h1>
+</div>
+
+<div>
+    <input id="url" type="text" value="http://localhost:5279/api/demo/test" size="80" />
+    <br/>
+    <input type="button" value="Test"
+           onclick="requestVal()" />
+    <span id='result'></span>
+</div>
+
+<script>
+    function requestVal() {
+        const resultSpan = document.getElementById('result');
+
+        let uri = document.getElementById('url').value;
+        console.log(uri);
+        fetch(uri, {
+            method: 'GET',
+            mode: 'cors',
+        }).then(res => {
+            return res.json();
+        }).then(json => {
+            console.log('获取的结果', json.result);
+            resultSpan.innerText = json.result;
+            return json;
+        }).catch(err => {
+            console.log('请求错误', err);
+        })
+    }
+</script>

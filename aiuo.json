@@ -1,0 +1,767 @@
+/*
+  环境变量配置：ASPNETCORE_ENVIRONMENT 或 DOTNET_ENVIRONMENT
+  */
+{
+  "Nacos": {
+    "Enabled": true, // 【自定义】是否启用Nacos
+
+    // 0) 通用配置
+    "ServerAddresses": [ "http://192.168.1.120:8848" ], // nacos服务地址
+    "UserName": "", // nacos未开启验证时不能设置
+    "Password": "",
+    "Namespace": "dev", // 命名空间，用于隔离
+    "GroupName": "DEFAULT_GROUP", // 配置组名
+
+    // 1) 配置管理
+    "Listeners": [ // 后面覆盖前面
+      {
+        "Optional": false,
+        "DataId": "aiuo",
+        "Group": "DEFAULT_GROUP"
+      },
+      {
+        "Optional": false,
+        "DataId": "demo_app",
+        "Group": "DEFAULT_GROUP"
+      }
+    ],
+    "ConfigUseRpc": true, // 是否启用RPC调用配置文件，否则轮训
+    "DefaultTimeOut": 15000, // 请求超时时间
+    "ListenInterval": 1000,
+    "EndPoint": "",
+    "AccessKey": "",
+    "SecretKey": "",
+
+    // 2) 服务发现
+    "NamingUseRpc": true, // 是否启用PRC作为服务发现，否则轮训
+    "NamingLoadCacheAtStart": "false", // 启动时是否优先读取本地缓存默认false
+    "NamingCacheRegistryDir": "",
+    "LBPickFirst": true, // 【自定义】Grpc负载均衡策略 true: 选第一次成功 false: 轮询
+    "LBRefreshInterval": 30000, // 【自定义】Grpc负载均衡刷新时间
+
+    // 3) 服务注册
+    "RegisterEnabled": true, // 是否注册到服务中心
+    "ServiceName": "demo_app", // 服务名称，【将替换Project:ProjectId】
+    "RegisterApiType": "Http", // 【自定义】注册主机时API类型: Http,Grpc,WebSocket，【将替换Host:RegisterApiType】
+    "ClusterName": "DEFAULT",
+    "Ip": "", // 注册服务的IP地址
+    "PreferredNetworks": "", // 匹配本机IP作为服务注册IP。如: 10.0.
+    "Port": 0, // 注册服务的端口。0表示启动服务时的端口
+    "Secure": false, // 协议true: https
+    "InstanceEnabled": true, // 服务注册后是否马上上线
+    "Weight": 100, // 负载均衡权重
+    "Ephemeral": true, //是否是临时实例。默认值为 true
+    "Metadata": {} //元数据
+  },
+
+  // #region ******** Common ********
+  // 项目信息配置 (AiUo.Configuration.ProjectSection)
+  "Project": {
+    "ProjectId": "demo_app", // 项目标识确保唯一【nacos时使用nacos:ServiceName】
+    "Description": "demo项目", // 项目描述
+    "ApplicationName": "aiuo", // 应用程序名称(相同名称的项目间数据保护,Session和Cookie共享)
+    "MinThreads": 100, // 线程池最小线程数=cpu内核*50，0-采用默认值
+    "ResponseErrorMessage": true, //是否返回客户端错误信息(自定义异常和未处理异常的message)
+    "ResponseErrorDetail": true, //是否返回客户端异常详细信息（exception序列化信息）
+    "Environment": null //当前环境:dev,sit,fat,uat,pre,pro
+  },
+
+  // 主机配置(AiUo.Configuration.HostSection)
+  "Host": {
+    "RegisterEnabled": true, // 是否注册Redis Host服务(RedisHostRegisterProvider,RedisHostDataService,RedisHostMicroService)
+    "RegisterApiType": "Http", //注册主机时API类型: Http,Grpc,WebSocket【nacos时使用nacos:RegisterApiType】
+    "HeartbeatInterval": 5000, // 主机注册心跳间隔，默认5秒最小1秒
+    "HeathInterval": 60000, // 主机检查间隔，默认1分钟最小10秒
+    "TimerMinDelay": 200, // 主机Timer最小Delay时间, 默认200最小100
+    "TimerWaitTimeout": 20000, // 主机Timer关闭等待超时，默认20秒最小5秒
+    "ShutdownTimeout": 120 //关机timeout时间(秒)
+  },
+
+  "AWS": {
+    "Enabled": true,
+    "Profile": "default",
+    "Region": "us-west-2",
+    "AccessKey": "",
+    "SecretKey": "",
+    "VpcName": "my-vpc",
+    "LoadBalancing": {
+      "RegisterTargetGroup": false,
+      "TargetGroupName": ""
+    }
+  },
+
+  // 自定义配置信息 (AiUo.Configuration.AppSettingsSection) => ConfigUtil.AppSettings.Get(key)
+  "AppSettings": {
+    "Id": 123,
+    "Name": "abc"
+  },
+
+  // 自定义配置数据(AiUo.Configuration.AppConfigsSection) => ConfigUtil.AppConfigs.Get<T>()
+  "AppConfigs": {
+    "UserInfo": {
+      "Id": 1,
+      "Name": "aaa"
+    }
+  },
+
+  // 日志 (AiUo.Extensions.Serilog)
+  "Serilog": {
+    "Using": [ "Serilog.Sinks.Console", "Serilog.Sinks.File" ],
+    "MinimumLevel": {
+      "Default": "Debug", // 日志级别限制：Verbose|Debug|Information|Warning|Error|Fatal
+      "Override": {
+        "Microsoft": "Error",
+        "System": "Warning",
+        "Grpc": "Warning",
+        "ProtoBuf": "Warning"
+      }
+    },
+    "WriteTo": {
+      "ConsoleSink": {
+        "Name": "Console",
+        "Args": {
+          "restrictedToMinimumLevel": "Debug", // 日志级别
+          "theme": "Serilog.Sinks.SystemConsole.Themes.AnsiConsoleTheme::Code, Serilog.Sinks.Console",
+          "outputTemplate": "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}"
+        }
+      },
+      "FileSink": {
+        "Name": "File",
+        "Args": {
+          "restrictedToMinimumLevel": "Information", // 日志级别
+          "path": "./logs/log.txt",
+          "rollingInterval ": "Day", // 滚动文件名生成策略。如：log20190101.txt
+          "rollOnFileSizeLimit": true, //开启大小限制
+          "fileSizeLimitBytes": 52428800, //文件大小限制
+          "retainedFileCountLimit": 31, // 文件保留数限制,不限制 = null
+          "retainedFileTimeLimit": "7.00:00:00",
+          "outputTemplate": "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}"
+        }
+      },
+      "ELKSink": {
+        "Name": "AiUoELK",
+        "Args": {
+          "restrictedToMinimumLevel": "Debug", // 日志级别
+          "nodeUris": "http://192.168.1.120:9200", // 多个;分割
+          "autoRegisterTemplate": true, //默认false。设置为true时，接收器将为Elasticsearch中的日志注册一个索引模板。 该模板经过优化，可以处理serilog事件
+          "autoRegisterTemplateVersion": "ESv7",
+          "overwriteTemplate": true,
+          "typeName": null, // 用于日志事件的默认elasticsearch类型名称
+          "batchAction": "Create",
+          "batchPostingLimit": 50, // 单个批次中要发布的最大事件数
+          "username": "elastic", // 用户名
+          "password": "password" // 密码
+          /*
+          "indexFormat": "idx-demo-dev-{0:yyyy.MM.dd}", //默认创建idx-{projectId}-{env}-{0:yyyy.MM.dd} 索引名称格式化程序。 使用该事件的DateTimeOffset的string.Format在此字符串上运行。
+          "emitEventFailure": "WriteToSelfLog,WriteToFailureSink,RaiseCallback",
+          "failureSink": "AiUo.Extensions.Serilog.ElasticsearchFailureSink, AiUo.Extensions.Serilog" // Elasticsearch失败时写入本地文件./logs/log.txt
+          "templateName": "myCustomTemplate", // 使用AutoRegisterTemplate功能时，这可以让您覆盖默认模板
+          "period": 2000, // 在检查事件批次之间等待的时间（时间跨度）
+          "inlineFields": false, //当true字段将被写入json文档的根目录
+          "bufferBaseFilename": "", //目录的可选路径，可以用作日志传送缓冲区以提高日志转发的可靠性。
+          "bufferFileSizeLimitBytes": null, //允许特定日期的缓冲区日志文件增加到的最大大小（以字节为单位）。 默认情况下，没有限制。
+          "bufferLogShippingInterval": 5000, //检查缓冲区文件之间的时间间隔（以毫秒为单位）。
+          "pipelineName": "",
+          "bufferRetainedInvalidPayloadsLimitBytes": 5000,
+          "bufferFileCountLimit": 31,
+          "connectionGlobalHeaders": "Authorization=Bearer SOME-TOKEN;OtherHeader=OTHER-HEADER-VALUE",
+          "connectionTimeout": 5, //将批量操作发送到Elasticsearch时的连接超时（时间跨度）
+          "queueSizeLimit": "100000",
+          "overwriteTemplate": false,
+          "registerTemplateFailure": "IndexAnyway",
+          "deadLetterIndexName": "deadletter-{0:yyyy.MM}",
+          "numberOfShards": 20,
+          "numberOfReplicas": 10,
+
+          "formatProvider": "", //提供特定于文化的格式信息
+          "connection": "", //允许您覆盖用于与elasticsearch通信的连接
+          "serializer": "", //当传递序列化程序时，未知对象将被序列化为对象，而不是依赖于它们的ToString表示形式
+          "connectionPool": "", //描述事件要写入的集群的连接池
+          "customFormatter": "", //自定义将日志事件转换为ElasticSearch文档时使用的格式化程序。 请注意，格式化程序输出必须是有效的JSON
+          "customDurableFormatter": "" //自定义将日志事件转换为持久接收器时使用的格式化程序。 请注意，格式化程序输出必须是有效的JSON
+          */
+        }
+      }
+    },
+    "Enrich": [],
+    "Destructure": [],
+    "Filter": [],
+    "Properties": {}
+  },
+
+  // SqlSugar数据库配置 (AiUo.Configuration.SqlSugarSection)
+  "SqlSugar": {
+    "Enabled": true,
+    "DbConfigProvider": null, //连接配置提供者
+    "DbSplitProvider": null, //数据分库分表提供者
+    "DefaultConnectionStringName": "default",
+    "ConnectionStrings": {
+      "default": {
+        "DbType": "MySql",
+        /*
+        allowuservariables=true:
+        TreatTinyAsBoolean=false: 禁止tinyint转bool
+        AllowLoadLocalInfile=true: bulkCopy需要
+        Pooling=false: 使同一个连接可以多次Open
+        ConnectionTimeout 连接timeout
+        MaximumPoolSize 最大连接池
+        ConnectionLifeTime 连接池生命周期
+        */
+        "ConnectionString": "server=192.168.1.120;port=3306;database=ing;uid=root;pwd=root;sslmode=Disabled;allowuservariables=True;AllowLoadLocalInfile=true;ConnectionTimeout=120;ConnectionLifeTime=500",
+        "SlaveConnectionConfigs": [
+          {
+            "ConnectionString": "",
+            "HitRate": 1 //命中整数权重，值越大概率越大
+          }
+        ],
+        "MappingNamespaces": "", // 定义映射到此连接的PO实体类的命名空间，逗号分割
+        "SlaveEnabled": true, //是否使用读写分离
+        "LogEnabled": false,
+        "LogSqlMode": 0 //SQL日志模式0-默认 1-原生 2-无参数化
+      }
+    }
+  },
+
+  // [已过时]数据库配置 (AiUo.Data.Configuration.DataSection)
+  "Data": {
+    "DefaultConnectionStringName": "default", // 默认数据库连接
+    "InstProvider": "",
+    "OrmConnectionRouterType": "", // ORM连接路由IOrmConnectionRouter
+    "OrmTableRouterType": "", // ORM表名路由IOrmTableRouter
+    "ConnectionStrings": {
+      "default": {
+        "ProviderName": "mysql",
+        "ConnectionString": "server=192.168.1.120;port=3306;database=ing;user id=root;password=root;sslmode=Disabled;allowuservariables=True",
+        "ReadConnectionString": "", // 支持读写分离
+        "CommandTimeout": "30",
+        "InstProvider": "",
+        "OrmMap": "" // 映射此数据库连接的命名空间集合，用;分隔
+      },
+      "game": {
+        "ProviderName": "mysql",
+        "ConnectionString": "server=192.168.1.120;port=3306;database=gdb;user id=root;password=root;sslmode=Disabled;allowuservariables=True",
+        "ReadConnectionString": "", // 支持读写分离
+        "CommandTimeout": "30",
+        "InstProvider": "",
+        "OrmMap": "" // 映射此数据库连接的命名空间集合，用;分隔
+      }
+    }
+  },
+
+  // Redis配置 (AiUo.Extensions.StackExchangeRedis.Configuration.RedisSection)
+  "Redis": {
+    "DefaultConnectionStringName": "default", // 默认redis连接
+    "ConnectionStrings": {
+      "default": {
+        /*
+        user=null Redis服务器账号
+        password=null Redis服务器密码
+        serviceName=null 连接到哨兵主要服务名
+        defaultDatabase=1 默认数据库索引, 从 0 到 databases - 1
+        asyncTimeout=5000 允许异步操作的时间默认（毫秒）
+        allowAdmin=false  如果是 true，开启一些被认为是有风险的命令
+
+        name=null 唯一名称，用来识别Redis里面的连接
+        keepAlive=-1 发送消息以帮助保持套接字处于活动状态的时间（秒）(默认为 60 秒)
+        abortConnect=true  如果是 true，当没有可用的服务器时 Connect 不会创建连接              
+        channelPrefix=null  所有 pub/sub 操作的可选通道前缀{string}
+        connectRetry=3  在初始化 Connect 时，连接重试次数
+        connectTimeout=5000 连接超时设置，时间单位是ms
+        configChannel="__Booksleeve_MasterChanged" 设置广播通道名称
+        configCheckSeconds=60 检查配置的时间（秒）。如果支持，这可用作交互式套接字的保持活动状态。
+        proxy=Proxy.None 使用的代理类型 (如果有的话); 例如 “twemproxy”
+        resolveDns=false 指定DNS解析方式是显示而不是隐式
+        ssl=false 指定使用SSL加密
+        sslHost=null 强制SSL主机识别，需要使用服务器端证书
+        sslProtocols=null 使用加密连接时支持Ssl/Tls版本。使用'|' 提供多个价值观。
+        syncTimeout=5000 允许同步操作的时间（毫秒）
+        tiebreaker="__Booksleeve_TieBreak" 用于在不明确的主要场景中选择服务器的关键
+        version="2.0" Redis 版本级别 (该选项是非常有用的，当服务器不可用时)
+        */
+        "ConnectionString": "192.168.1.120:6379,serviceName=null,user=null,password=root,defaultDatabase=0,asyncTimeout=5000,allowAdmin=false",
+        "SerializeMode": "json",
+        "NamespaceMap": "" // 映射此redis连接的命名空间集合，用;分隔
+      }
+    },
+    "AutoLoad": true, // 是否自动加载ConsumerAssemblies
+    "ConsumerAssemblies": [] //用于自动注册消费类,+开头不存在不异常
+  },
+
+  // 消息队列 (AiUo.Extensions.RabbitMQ.RabbitMQSection)
+  "RabbitMQ": {
+    "Enabled": true,
+    "ConsumerEnabled": true, //是否开启Consumer消费
+    "MessageLogEnabled": false, //是否开启消息消费日志(很大)
+    "DebugLogEnabled": false, //是否开启调试日志(最大)
+    "DefaultConnectionStringName": "default",
+    "ConnectionStrings": {
+      "default": {
+        "UseShortNaming": false, //是否使用简短的名字定义ExchangeName和QueueName
+        "UseEnvironmentVirtualHost": false, //是否使用ConfigUtil.EnvironmentString作为VirtualHost
+        "UseQuorum": false, //是否启用高可用(仅MQ群集使用)
+        /*
+        host: 主机,分割,如：host1:5672,host2:5672
+        username: 用户名，默认guest
+        password: 密码，默认guest
+        virtualHost: 默认虚拟主机'/'
+        publisherConfirms: 默认false，表示publisher发布的消息不保证实际送达。true:(timeout参数表示过期) 建议用bus.PubSub.PublishAsync(msg).ContinueWith(task=>{ if(task.IsCompleted && !task.IsFaulted){ OK.. }});
+        requestedHeartbeat: 默认值为10秒。设置为零表示无心跳
+        prefetchcount: 默认为50。这是在EasyNetQ 发送ack 之前RabbitMQ 将传送的消息数。设置为 0 表示无限预取（不推荐）。设置为 1 以实现消费者农场之间的公平工作平衡。
+        persistentMessages: 默认true，RabbitMQ消息持久化
+        product: 产品名称，将显示在RabbitMQ 的管理界面中
+        platform: 平台名称，默认主机名，将显示在RabbitMQ 的管理界面中
+        timeout: 默认10秒，0不限制
+        ssl: 允许启用 ssl
+        */
+        "ConnectionString": "host=192.168.1.120:5672;username=root;password=root;virtualHost=/;publisherConfirms=true;prefetchcount=50;requestedHeartbeat=60;timeout=10"
+      }
+    },
+    "AutoLoad": true, // 是否自动加载ConsumerAssemblies
+    "ConsumerAssemblies": [] //用于自动注册消费类,+开头不存在不异常
+  },
+
+  // 内存自动同步缓存 (AiUo.DbCaching.DbCachingSection)
+  "DbCaching": {
+    "Enabled": true,
+    "PublishMode": "Redis", // 数据变更通知模式 Redis,MQ
+    "RedisConnectionStringName": "default",
+    "MQConnectionStringName": "default",
+    "PreloadProviders": [], //预加载缓存表IDbCachePreloadProvider实现类，如:Demo.DemoDbCachePreloadProvider,Demo.BLL
+    "RefleshTables": [
+      {
+        "ConfigId": "",
+        "TableName": "",
+        "Interval": 60 //刷新间隔，分钟
+      }
+    ]
+  },
+
+  // AutoMapper (AiUo.Extensions.AutoMapper.AutoMapperSection)
+  "AutoMapper": {
+    "AutoLoad": true, // 是否自动加载Assemblies
+    "Assemblies": [] // 需要自动注册的dll名称,+开头不存在不异常
+  },
+
+  //jwt验证 (AiUo.Security.JwtAuthSection)
+  "JwtAuth": {
+    "Enabled": true, //是否起效
+    "DebugToken": "", // Debug时默认的JwtToken或者UserId（仅ConfigUtil.IsDebugEnvironment时有效）
+    "SigningKey": "NoiA32QqU0elJ0FW5qgnILF7M3WpP7fS",
+    "Issuer": "AiUo.com",
+    "Audience": "AiUo.com",
+    "ValidateLifetime": false, //是否验证过期
+    "ExpireMinutes": 30 // Token过期时间（分钟）,一年525600
+  },
+
+  // 雪花ID AiUo.SnowflakeId
+  "SnowflakeId": {
+    "Enabled": false,
+    "UseRedis": true, // 使用redis将自动分配每个服务的WorkerId
+    "RedisConnectionStringName": "default",
+    "RedisExpireSeconds": 600, //过期时间
+    "DataCenterId": 0, // 数据中心ID（范围0-7）
+    "WorkerId": 0, //机器码(范围0-1023) UseRedis二选一
+    "WorkerIdBits": 10 // 机器码位长度（默认10 => 1023）
+  },
+
+  // 随机数设置 (AiUo.Randoms.RandomSection)
+  "Random": {
+    "DefaultProviderName": "default",
+    "Providers": {
+      "default": {
+        "RandomType": "AiUo.Randoms.RNGReader,AiUo",
+        "Options": {
+          "Enabled": false,
+          "RouletteSamplingCount": 100000, //抽取采样总数
+          "ShuffleSamplingCount": 100000, //洗牌采样总数
+          "RouletteDeviation": 20, //采样偏差: 抽取 - n取1偏差量，20表示偏差20%
+          "ShuffleDeviation": 20, //采样偏差: 洗牌 - n取size偏差量，20表示偏差20%
+          "CheckInterval": 10000 //监测间隔
+        }
+      }
+    }
+  },
+
+  // SmtpClientEx 配置 (AiUo.Net.Email.SmtpSection)
+  "Smtp": {
+    "DefaultClientName": "default",
+    "Clients": {
+      "default": {
+        "Host": "smtp.163.com",
+        "Port": 25,
+        "UseSsl": false,
+        "FromAddress": "18910648185@163.com",
+        "UserName": "18910648185@163.com",
+        "Password": "password",
+        "FromName": "master"
+      }
+    },
+    "SendTos": {
+      "default": {
+        "To": [ "" ],
+        "CC": [ "" ]
+      }
+    }
+  },
+
+  "JsonHttpClient": {
+    "pala": {
+      "BaseAddress": "https://api.github.com/",
+      "Timeout": 10000, // 请求超时时长（毫秒）
+      "Retry": 0, //重试次数
+      "RequestHeaders": {}, //key-value格式,与Settings相同
+      "Settings": {
+        "PartnerId": "OurGame",
+        "Currency": "USD"
+      }
+    }
+  },
+  // [已过时]HttpClientEx配置 (AiUo.Net.HttpClient.HttpClientSection)
+  "HttpClient": {
+    "pala": {
+      "BaseAddress": "https://api.github.com/",
+      "RequestHeaders": [], //key-value格式,与Settings相同
+      "Timeout": 10000, // 请求超时时长（毫秒）
+      "UseCookies": false, //是否使用cookies
+      "ReserveBody": true, //是否保留RequestBody和ResponseBody
+      "SerializeMode": "json", //序列化类型:json,protobuf,xml
+      "Encoding": null, //默认UTF8
+      "Settings": {
+        "PartnerId": "OurGame",
+        "Currency": "USD"
+      }
+    }
+  },
+
+  "IP2Country": {
+    "Enabled": false,
+    "DbIpSource": null, //IP库：https://db-ip.com/db/download/ip-to-country-lite
+    "AllowIps": "" //允许的IP,分割 * 全部允许
+  },
+
+  // DotNetty WebSocket Server (AiUo.Extensions.DotNetty.Configuration.DotNettySection)
+  "DotNetty": {
+    "Enabled": true,
+    "UseLibuv": true,
+    "Protocol": "WebSocket",
+    "Port": 80,
+    "ReadIdelTimeOut": 0, // 秒 0-服务器被动心跳
+    "ConnectTimeout": 5000, //连接5秒超时
+    "SoBacklog": 2048, //排队
+    "LogLevel": "DEBUG", // TRACE,DEBUG,INFO,WARN,ERROR
+    "Ssl": false,
+    "SslCer": "dotnetty.com.pfx",
+    "SslPassword": "password",
+    "EnableReceiveEvent": false,
+    "EnableSendEvent": false,
+    "EnableClosedEvent": false,
+    "EnableHeartbeatEvent": true,
+    "IsLittleEndian": false,
+    "CheckSessionInterval": 0, //检查未登录Session的间隔时间, 小于等于0不检查
+    "CheckSessionTimeout": 5000, //未登录Session的Timeout时间（防止空连接），小于等于0不检查
+    "AutoLoad": true, // 是否自动加载
+    "Assemblies": [] //继承RespondCommand<,>或标记ProtoPushAttribute的类所在Assembly，默认Assembly.GetEntryAssembly()
+  },
+  // #endregion ******** Common ********
+
+  // #region ******** Asp.Net ********
+  // Asp.Net配置
+  "AspNet": {
+    "UseRequestBuffering": true, // 是否缓存Request.Body，如果不需要读取Body设置为false
+    "UseApiActionResultFilter": true, // 是否使用ApiActionResultFilter(返回统一结构 AiUo.AspNet.ApiResult)
+    "UseModelStateInvalid": true, // 是否使用ValidateModelFilter（屏蔽[ApiController]的自动 400 响应）
+    "UseResponseCompression": true, // 是否启用压缩br,gzip
+    "UseApiVersioning": true, // 是否开启版本控制，基类继承AiUoControllerVersionBase，命名空间使用如xxx.V2
+    "RequestPeriodSecond": 15, //请求宽限期（秒）
+    "RequestBytesPerSecond": 100, //请求每秒字节限制
+    "UseSyncNotify": false, //客户端同步通知
+    "Swagger": {
+      "Enabled": true,
+      "UseSchemaFullName": false //生成接口用到的类型信息时，是否使用带命名空间的全名称，以避免重名异常
+    },
+    "PathBase": null, // 项目基础路径
+    "AutoLoad": true, // 是否自动加载HostingStartupAssemblies
+    "HostingStartupAssemblies": [], //启动时host配置assembly，继承IAiUoHostingStartup
+    "DynamicApiAssemblies": [] // 动态加载的API所在的 xxx.dll
+  },
+
+  //启用gRPC服务
+  "Grpc": {
+    "Enabled": true,
+    "AutoLoad": true, // 是否自动加载Assemblies
+    "Assemblies": []
+  },
+
+  // 启用Session或者Cookie Identity (AiUo.AspNet.Configuration.SessionAndCookieSection)
+  "SessionAndCookie": {
+    "UseCookieIdentity": true,
+    "CookieTimeout": 3, // cookie过期时间3天
+    "Domain": null, // cookie和session保存的domain，跨域如: .xxyy.com
+    "SameSiteMode": "Unspecified", // https使用None，其他Unspecified
+    "UseSession": false,
+    "SessionTimeout": 20 // Session过期时间,20分钟
+  },
+
+  // Asp.net core CORS跨域请求配置 (AiUo.AspNet.Configuration.CorsSection)
+  "Cors": {
+    "UseCors": {
+      "Enabled": true,
+      "EnabledReferer": false, // 是否验证请求Referer
+      "PoliciesProvider": "", //策略提供程序: AiUo.AspNet.ICorsPoliciesProvider
+      "DefaultPolicy": null
+    },
+    "Policies": {
+      "default": {
+        "Origins": "*", // 允许的来源,分号;分隔（下同）
+        "Methods": "*", // 允许的HTTP方法
+        "Headers": "*", // 允许的请求标头
+        "MaxAge": 86400 // Access-Control-Max-Age 时间(秒)
+      }
+    }
+  },
+
+  // 自有客户端访问API时的sign验证器
+  "ClientSignFilter": {
+    "DefaultFilterName": "default",
+    "FiltersProvider": "", //AiUo.AspNet.IClientSignFiltersProvider
+    "Filters": {
+      "default": {
+        "Enabled": true, // 是否启用
+        "HeaderName": "tfxc-sign", // Request.Header名称(双方约定)
+        "KeySeed": "hNMmcYykGdCluYqe",
+        "KeyIndexes": "7, 1, 4, 15, 5, 2, 0, 8, 13, 14, 9, 12, 11, 10, 6, 3"
+      }
+    }
+  },
+
+  // 自由客户端返回同步通知
+  "ClientSyncNotify": {
+    "Enabled": true, // 是否通过header下发同步通知
+    "HeaderName": "tfxc-sync", // Response.Header名称(双方约定)
+    "NotifyProvider": null // 同步通知服务提供者(默认RedisSyncNotifyProvider)，继承AiUo.AspNet.IClientSyncNotifyProvider
+  },
+
+  // 访问我方API时的IP验证器
+  "AccessIpFilter": {
+    "DefaultFilterName": "default",
+    "FiltersProvider": "", //AiUo.AspNet.IAccessIpFiltersProvider
+    "Filters": {
+      "default": {
+        "Enabled": true, // 是否启用
+        "EnableIntranet": true, // 是否允许所有内网ip
+        "AllowIps": "" // 允许ip列表，;分割。
+      }
+    }
+  },
+
+  // 访问我方API时的sign验证器
+  "RequestSignFilter": {
+    "DefaultFilterName": "default",
+    "FiltersProvider": "", //AiUo.AspNet.IRequestSignFilterProvider
+    "Filters": {
+      "default": {
+        "Enabled": true, // 是否启用
+        "HeaderName": "xxx-xxx", // Request.Header名称(双方约定)
+        "PublicKey": "", // 公钥
+        "KeyMode": "PublicKey", // 公钥模式: PublicKey(pkcs8),RSAPublicKey(pkcs1)
+        "HashName": "SHA256", // 加密哈希算法的名称："MD5", "SHA1", "SHA256", "SHA384", and "SHA512"
+        "Cipher": "Base64", // 加密后的字符串格式: Base64,Hex
+        "Encoding": null
+      }
+    }
+  },
+
+  // 请求上下文日志 (匹配优先级: MatchRule => NamingRule => DefaultRule)
+  "RequestLogging": {
+    "Enabled": true,
+    "DefaultRule": {
+      "Level": "Debug",
+      "CustomeExceptionLevel": "Information",
+      "Properties": [] // 附加信息：Referer, RemoteIp, UserId, RequestBody, RequestHeaders, ResponseBody, ResponseHeaders
+    },
+    "MatchRule": {
+      "Level": "Debug",
+      "CustomeExceptionLevel": "Information",
+      "Properties": [ "RequestBody", "ResponseBody" ],
+      "Urls": [ "*" ] //*表示记录全部,支持Url前缀匹配：aaa/bbb/*
+    },
+    "NamingRules": {
+      "high": {
+        "Level": "Debug",
+        "CustomeExceptionLevel": "Information",
+        "Properties": []
+      }
+    }
+  },
+
+  // 输出缓存 (AiUo.AspNet.ResponseCaching.ResponseCacheEx指定)
+  "ResponseCaching": {
+    "ProfileEnabled": true,
+    "Profiles": {
+      "default": {
+        "Duration": 120,
+        "Location": "Any", // Any,Client,None
+        "VaryByQueryKeys": [] //
+      }
+    },
+    "StaticEnabled": false,
+    "Static": {
+      "Files": [ ".png", ".gif", ".jpg", ".jpeg", ".svg", ".webp" ],
+      "Max-Age": 600
+    }
+  },
+
+  // OAuth验证
+  "OAuth": {
+    "Enabled": true,
+    "ProvidersProvider": null,
+    "Providers": {
+      "Google": {
+        "ClientId": "453912735249-j7k3subq64jbntcgn3pjtnpnbkheka74.apps.googleusercontent.com",
+        "ClientSecret": "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"
+      },
+      "Facebook": {
+        "ClientId": "1500613440708250",
+        "ClientSecret": "4a4f2c86f00dd771440164076f734ffd"
+      }
+    }
+  },
+
+  // HCaptcha验证码
+  "HCaptcha": {
+    "Enabled": true,
+    "SiteKey": "9459ee20-43d9-4777-af5d-b1fbe89b403e",
+    "Secret": "ES_01c1e11250f54abc8d90248733f370db",
+    "ApiBaseUrl": "https://api.hcaptcha.com/",
+    "VerifyRemoteIp": false
+  },
+
+  "Metirc": {
+    "AppMetrics": {
+      "ReportingEnabled": true
+    },
+    "AspNetMetrics": {
+      "IgnoredHttpStatusCodes": [
+        404
+      ],
+      "HealthEndpointEnabled": false,
+      "MetricsEndpointEnabled": true,
+      "MetricsTextEndpointEnabled": true,
+      "PingEndpointEnabled": false,
+      "DefaultTrackingEnabled": false,
+      "OAuth2TrackingEnabled": false,
+      "IgnoredRoutesRegexPatterns": [
+        "/^test/"
+      ],
+      "FilterRoute": {
+        "ForNameSpace": [],
+        "ForService": [],
+        "ForMethod": []
+      }
+    }
+  },
+  // #endregion ******** Asp.Net ********
+
+  // 无效- 请求限制 (AiUo.AspNet.Configuration.RequestLimitSection)
+  "RequestLimit": {
+    // 判断流程：获取IP,clientId和Verb+URL => 白名单 => IpRules => GeneralRules (取最严格限制)
+    "EnableIpRateLimit": false, // 是否使用IP频率限制
+    "EnableClientRateLimit": false, // 是否使用Client频率限制
+    "EnableRedisStore": false, // 是否使用Redis存储策略（集群时）
+    "RedisConnectionStringName": "default", // Redis连接名
+    "RedisDatabaseIndex": -1,
+    "IpRateLimit": {
+      // IP请求频率限制
+      "EnableEndpointRateLimiting": true, // true:仅启用基于端点速率限制的URL路径和HTTP动词,false:限制作用于任何端点的任何请求
+      "StackBlockedRequests": false, // 指示是否应按以下顺序堆叠所有请求（包括被拒绝的请求）：天，小时，分钟，秒
+      "DisableRateLimitHeaders": true, // 是否禁用X-Rate-Limit header
+      "RealIpHeader": "X-Real-IP", // 由反向代理注入的真实ip标头的HTTP标头，默认情况下为X-Real-IP
+      "ClientIdHeader": "X-ClientId", // 用于保存客户端标识符的HTTP标头，默认情况下为X-ClientId
+      "HttpStatusCode": 429, // 发生速率限制时返回的HTTP状态代码，默认情况下，该值设置为429（请求过多）
+      "QuotaExceededResponse": {
+        // 表示QuotaExceeded响应的模型（内容类型，内容，状态码）
+        "Content": "{{\"result\":null,\"isSuccess\":false,\"statusCode\":429,\"code\":\"#RequestRateLimit#\",\"message\":\"Quota exceeded. Maximum allowed: {0} per {1}. Please try again in {2} second(s).\",\"exception\":null}}",
+        "ContentType": "application/json"
+      },
+      "IpWhitelist": [ "::1/10" ], // IP白名单: ::1/10, 192.168.0.0/24, 192.168.0.1-192.168.0.20
+      "ClientWhitelist": [], // 客户端白名单
+      "EndpointWhitelist": [], // Endpoint白名单
+      "GeneralRules": [
+        // 通用规则
+        {
+          "Endpoint": "*:/api/*", // HTTP动词和路径:get:/api/values, *:/api/*, *
+          "Period": "1s", // 限速周期为1s, 1m, 1h, 1d
+          "Limit": 2 // 客户端在定义的时间内可以发出的最大请求数
+        }
+      ],
+      "IpRules": [
+        // 覆盖特定IP的一般规则
+        {
+          "Ip": "172.28.99.242",
+          "Rules": [
+            {
+              "Endpoint": "*:/api/*",
+              "Period": "1s",
+              "Limit": 2
+            }
+          ]
+        }
+      ]
+    },
+    "ClientRateLimit": {
+      "EnableEndpointRateLimiting": true,
+      "ClientIdHeader": "X-ClientId",
+      "HttpStatusCode": 429,
+      "EndpointWhitelist": [],
+      "ClientWhitelist": [],
+      "GeneralRules": [
+        {
+          "Endpoint": "*",
+          "Period": "1s",
+          "Limit": 2
+        }
+      ],
+      "ClientRules": [
+        {
+          "ClientId": "cl-key-1",
+          "Rules": [
+            {
+              "Endpoint": "*",
+              "Period": "1s",
+              "Limit": 10
+            }
+          ]
+        }
+      ]
+    }
+  },
+
+  // 未测试 - SMS
+  "SMS": {
+    "DefaultClientName": "default",
+    "Clients": [
+      {
+        "Name": "default",
+        "Provider": "tencent",
+        "Debug": true,
+        "ExpireMinutes": 5,
+        "RequestUrl": "https://yun.tim.qq.com/v5/tlssmssvr/sendsms",
+        "AppId": "",
+        "AppKey": "",
+        "TplId": 0,
+        "Sign": ""
+      }
+    ]
+  },
+
+  "Apollo": {
+    "Enabled": true,
+    "AppId": "nnbr_webapi", // 唯一，使用ProjectId,小写并_分割
+    "MetaServer": "http://localhost:8080/",
+    "ConfigServer": [],
+    "Namespaces": [ "application.json", "application" ],
+    "LogLevel": "Debug" // Trace|Debug|Information|Warning|Error|Fatal
+  },
+
+  "AllowedHosts": "*"
+}

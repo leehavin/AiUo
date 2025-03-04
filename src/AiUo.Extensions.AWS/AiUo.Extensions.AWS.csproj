@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <Description>AWS SDK封装</Description>
+    <Version>1.0.0</Version>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="AWSSDK.ACMPCA" Version="3.7.301.17" />
+    <PackageReference Include="AWSSDK.EC2" Version="3.7.317" />
+    <PackageReference Include="AWSSDK.ECS" Version="3.7.305.20" />
+    <PackageReference Include="AWSSDK.ElasticFileSystem" Version="3.7.302.49" />
+    <PackageReference Include="AWSSDK.ElasticLoadBalancingV2" Version="3.7.302.14" />
+    <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.7.300" />
+    <PackageReference Include="AWSSDK.S3" Version="3.7.306.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AiUo.Extensions.StackExchangeRedis\AiUo.Extensions.StackExchangeRedis.csproj" />
+    <ProjectReference Include="..\AiUo\AiUo.csproj" />
+  </ItemGroup>
+</Project>

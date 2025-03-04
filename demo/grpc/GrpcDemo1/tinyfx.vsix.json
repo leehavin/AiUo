@@ -1,0 +1,63 @@
+{
+  "DockerPublish": {
+    "DefaultConfig": "default",
+    "Configs": [
+      {
+        "Name": "default",
+        "Desc": "默认的配置",
+        "BuildMode": 0,
+        "ServerIp": "192.168.1.111",
+        "Port": "22",
+        "Username": "root",
+        "Password": "root",
+        "IsSsh": false,
+        "ServerPath": "/root/hosts/GrpcDemo1/upload",
+        "ImageName": "mcr.microsoft.com/dotnet/aspnet:6.0",
+        "Containers": [
+          {
+            "Name": "grpcdemo1-01",
+            "HttpPort": 7001,
+            "GrpcPort": 17001,
+            "WebsocketPort": 0,
+            "ServerPath": "",
+            "OptionsString": "-e DOTNET_ENVIRONMENT=SIT",
+            "CommandsString": null,
+            "LimitCoreFile": true,
+            "IsDefault": true,
+            "IsHost": false,
+            "IsAspNet": true,
+            "Ports": "http:7001|grpc:17001"
+          },
+          {
+            "Name": "grpcdemo1-02",
+            "HttpPort": 7002,
+            "GrpcPort": 17002,
+            "WebsocketPort": 0,
+            "ServerPath": "",
+            "OptionsString": "-e DOTNET_ENVIRONMENT=SIT",
+            "CommandsString": null,
+            "LimitCoreFile": true,
+            "IsDefault": false,
+            "IsHost": false,
+            "IsAspNet": true,
+            "Ports": "http:7002|grpc:17002"
+          }
+        ]
+      }
+    ]
+  },
+  "SqlSugar": {
+    "DefaultElement": "demo",
+    "Elements": [
+      {
+        "Name": "demo",
+        "DatabaseType": 0,
+        "ConnectionString": "server=192.168.1.120;port=3306;database=demo;uid=root;pwd=root;sslmode=Disabled;allowuservariables=True;AllowLoadLocalInfile=true;ConnectionTimeout=120;ConnectionLifeTime=500",
+        "OutputPath": "DAL",
+        "Namespace": "GrpcDemo1.DAL",
+        "UseSubPath": false,
+        "Partial": 1
+      }
+    ]
+  }
+}

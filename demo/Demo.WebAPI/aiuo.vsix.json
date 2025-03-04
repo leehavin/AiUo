@@ -1,0 +1,74 @@
+{
+  "OrmGen": [
+    {
+      "ConnStrInfo": {
+        "Provider": 7,
+        "ConnectionString": "server=10.0.0.101;user id=root;pwd=KFadguzd8Rh2JgKHsGFK;database=demo;Allow User Variables=True",
+        "DataSource": "10.0.0.101",
+        "Database": "demo",
+        "FileName": null,
+        "UserID": "root",
+        "Password": "KFadguzd8Rh2JgKHsGFK",
+        "ConnectTimeout": 15
+      },
+      "OrmSettings": {
+        "Namespaces": "Demo.WebAPI",
+        "OutputPath": "DAL\\"
+      },
+      "DbInitSettings": {
+        "CreateSqlFile": null,
+        "InitDataFile": null
+      }
+    }
+  ],
+  "SqlSugar": {
+    "DefaultElement": "ing",
+    "Elements": [
+      {
+        "Name": "ing",
+        "DatabaseType": 0,
+        "ConnectionString": "server=192.168.1.120;port=3306;database=ing;user id=root;password=root;sslmode=Disabled;allowuservariables=True",
+        "OutputPath": "DAL",
+        "Namespace": "Demo.WebAPI",
+        "UseSubPath": false,
+        "UseAiUo": false,
+        "IsDeletePartial": true
+      }
+    ]
+  },
+  "DockerPublish": {
+    "DefaultConfig": "default",
+    "Configs": [
+      {
+        "Name": "default",
+        "Desc": "默认的配置",
+        "BuildMode": 0,
+        "DockerfilePath": "",
+        "ServerIp": "192.168.1.121",
+        "Port": "22",
+        "Username": "root",
+        "Password": "Ing*zhixin@2022",
+        "IsSsh": false,
+        "ServerPath": "/root/hosts/test/Demo.WebAPI/upload",
+        "ImageName": "mcr.microsoft.com/dotnet/aspnet:6.0",
+        "ImgLocalPath": "images",
+        "ImgServerPath": "/root/hosts/Demo.WebAPI/images",
+        "Containers": [
+          {
+            "Name": "demo.webapi.01",
+            "HostPort": 9888,
+            "HttpPort": 0,
+            "GrpcPort": 0,
+            "WebsocketPort": 0,
+            "ServerPath": "",
+            "EnvString": "-e DOTNET_ENVIRONMENT=Development",
+            "LimitCoreFile": true,
+            "IsDefault": false,
+            "IsHost": false,
+            "IsAspNet": true
+          }
+        ]
+      }
+    ]
+  }
+}

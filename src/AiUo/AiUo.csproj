@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <Description>AiUo 基础库</Description>
+    <Version>1.0.0</Version>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>embedded</DebugType>
+    <LangVersion>default</LangVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Libs\ChinaArea\ChinaAreaData.7z" />
+    <EmbeddedResource Include="Security\RSA\OpenSSL_PrivateKey.pem" />
+    <EmbeddedResource Include="Security\RSA\OpenSSL_PublicKey.pem" />
+    <EmbeddedResource Include="Text\DirtyStringFilter\DirtyStringFilter.dic.20160817.7z" />
+    <EmbeddedResource Include="Text\Pinyin\PinyinDB.7z" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.9.2" />
+    <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="8.0.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+    <PackageReference Include="CliWrap" Version="3.7.0" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+    <PackageReference Include="Portable.BouncyCastle" Version="1.9.0" />
+    <PackageReference Include="Refit.HttpClientFactory" Version="7.0.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.4.0" />
+    <PackageReference Include="System.IO.Pipelines" Version="8.0.0" />
+    <PackageReference Include="Grpc.Net.Client" Version="2.61.0" />
+    <PackageReference Include="protobuf-net.Grpc" Version="1.1.1" />
+    <!--<PackageReference Include="protobuf-net" Version="3.2.30" />-->
+  </ItemGroup>
+</Project>
