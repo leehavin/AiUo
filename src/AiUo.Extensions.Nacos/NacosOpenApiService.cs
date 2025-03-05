@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using AiUo.Configuration;
 using AiUo.Net;
+using Nacos.V2;
 
 namespace AiUo.Extensions.Nacos;
 

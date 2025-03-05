@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using AiUo.Configuration;
 using AiUo.Logging;
 using AiUo.Randoms;
+using Nacos.V2;
 
 namespace AiUo.Extensions.Nacos;
 

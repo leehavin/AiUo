@@ -1,9 +1,9 @@
-﻿using Nacos;
+﻿using AiUo.Configuration;
+using AiUo.Hosting.Services;
+using Nacos.V2;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using AiUo.Configuration;
-using AiUo.Hosting.Services;
 
 namespace AiUo.Extensions.Nacos;
 

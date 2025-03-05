@@ -21,7 +21,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\AiUo.AspNet.Hosting\AiUo.AspNet.Hosting.csproj" />
-    <ProjectReference Include="..\Demo.Shared\Demo.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>

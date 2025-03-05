@@ -18,7 +18,6 @@
 		<ProjectReference Include="..\..\src\AiUo.Extensions.SshNet\AiUo.Extensions.SshNet.csproj" />
 		<ProjectReference Include="..\..\src\AiUo.Hosting\AiUo.Hosting.csproj" />
 		<ProjectReference Include="..\..\src\AiUo.IP2Country\AiUo.IP2Country.csproj" />
-		<ProjectReference Include="..\Demo.Shared\Demo.Shared.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
