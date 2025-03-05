@@ -117,6 +117,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrpcDemo.Server", "demo\Grp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrpcDemo.Client", "demo\GrpcDemo\GrpcDemo.Client\GrpcDemo.Client.csproj", "{EDE1773F-5C03-BFC3-72CC-580560073E69}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AiUo.Extensions.MagicOnion", "src\AiUo.Extensions.MagicOnion\AiUo.Extensions.MagicOnion.csproj", "{68CF53AF-8000-3F9D-E824-622D1C1B9E56}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -299,6 +301,10 @@ Global
 		{EDE1773F-5C03-BFC3-72CC-580560073E69}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EDE1773F-5C03-BFC3-72CC-580560073E69}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EDE1773F-5C03-BFC3-72CC-580560073E69}.Release|Any CPU.Build.0 = Release|Any CPU
+		{68CF53AF-8000-3F9D-E824-622D1C1B9E56}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{68CF53AF-8000-3F9D-E824-622D1C1B9E56}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{68CF53AF-8000-3F9D-E824-622D1C1B9E56}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{68CF53AF-8000-3F9D-E824-622D1C1B9E56}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -353,6 +359,7 @@ Global
 		{046F50CA-BA04-ACB0-4292-4F5E6826F1DD} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{BECE8F81-7AAE-38F6-0F9F-9A26BFD0688F} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{EDE1773F-5C03-BFC3-72CC-580560073E69} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{68CF53AF-8000-3F9D-E824-622D1C1B9E56} = {1FF166BB-BDA2-4A20-8EE9-209B210B1185}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A6FDC92E-FBF2-40CE-9A71-2A4B6A4E6F3E}
