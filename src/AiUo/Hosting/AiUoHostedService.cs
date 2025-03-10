@@ -69,11 +69,13 @@ public class AiUoHostedService : BackgroundService
         }
         await base.StartAsync(cancellationToken);
     }
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         //_logger.LogDebug("启动 => 2. Host ExecuteAsync");
         await _timerService?.StartAsync(stoppingToken);
     }
+
     private void OnStarted()
     {
         //_logger.LogDebug("启动 => 3. Host OnStarted");
@@ -84,6 +86,7 @@ public class AiUoHostedService : BackgroundService
         }
         //_logger.LogDebug("==== 启动应用程序结束 ====");
     }
+
     private void OnStopping()
     {
         _logger.LogDebug("停止 => 4. Host OnStopping");
@@ -100,6 +103,7 @@ public class AiUoHostedService : BackgroundService
             item.Invoke().GetTaskResult();
         }
     }
+
     public override async Task StopAsync(CancellationToken cancellationToken)
     {
         _logger.LogDebug("停止 => 5. Host StopAsync");
@@ -110,6 +114,7 @@ public class AiUoHostedService : BackgroundService
         }
         await base.StopAsync(cancellationToken);
     }
+
     private void OnStopped()
     {
         _logger.LogDebug("停止 => 6. Host OnStopped");

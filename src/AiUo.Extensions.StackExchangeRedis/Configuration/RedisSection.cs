@@ -15,6 +15,7 @@ public class RedisSection : ConfigSection
     /// Section名称
     /// </summary>
     public override string SectionName => "Redis";
+
     /// <summary>
     /// 默认redis连接
     /// </summary>
@@ -34,6 +35,7 @@ public class RedisSection : ConfigSection
     /// 是否自动加载
     /// </summary>
     public bool AutoLoad { get; set; }
+
     /// <summary>
     /// 发布订阅DLL
     /// </summary>

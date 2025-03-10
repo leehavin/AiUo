@@ -1,6 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using AiUo.Serialization;
+using Newtonsoft.Json;
 using System.Text;
-using AiUo.Serialization;
 
 namespace AiUo.Extensions.StackExchangeRedis.Serializers;
 
