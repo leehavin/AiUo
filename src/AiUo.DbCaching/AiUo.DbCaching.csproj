@@ -4,7 +4,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <Description>数据库和redis同步的内存缓存库</Description>
-    <Version>1.1.0</Version>
+    <Version>1.1.1</Version>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>embedded</DebugType>
   </PropertyGroup>
