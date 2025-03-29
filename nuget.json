@@ -1,0 +1,49 @@
+{
+  "NugetItems": [
+    {
+      "NugetKey": "oy2azc4vyfqzcrqqk6raqd2ltz6yqiuuzlozz366ws3mci",
+      "NugetSource": "https://api.nuget.org/v3/index.json",
+      "SymbolKey": null,
+      "SymbolSource": null,
+      "Mode": 0
+    }
+  ],
+  "NugetIndex": 0,
+  "IsGitCommit": false,
+  "Projects": [
+    "src\\AiUo\\AiUo.csproj",
+    "src\\AiUo.AspNet\\AiUo.AspNet.csproj",
+    "src\\AiUo.Data.MySql\\AiUo.Data.MySql.csproj",
+    "src\\AiUo.Data.SqlSugar\\AiUo.Data.SqlSugar.csproj",
+    "src\\AiUo.DbCaching\\AiUo.DbCaching.csproj",
+    "src\\AiUo.Extensions.AppMetric\\AiUo.Extensions.AppMetric.csproj",
+    "src\\AiUo.Extensions.AutoMapper\\AiUo.Extensions.AutoMapper.csproj",
+    "src\\AiUo.Extensions.AWS\\AiUo.Extensions.AWS.csproj",
+    "src\\AiUo.Extensions.CommandLineParser\\AiUo.Extensions.CommandLineParser.csproj",
+    "src\\AiUo.Extensions.EPPlus\\AiUo.Extensions.EPPlus.csproj",
+    "src\\AiUo.Extensions.Grpc\\AiUo.Extensions.Grpc.csproj",
+    "src\\AiUo.Extensions.MagicOnion\\AiUo.Extensions.MagicOnion.csproj",
+    "src\\AiUo.Extensions.Nacos\\AiUo.Extensions.Nacos.csproj",
+    "src\\AiUo.Extensions.RabbitMQ\\AiUo.Extensions.RabbitMQ.csproj", 
+    "src\\AiUo.Extensions.Serilog\\AiUo.Extensions.Serilog.csproj",
+    "src\\AiUo.Extensions.SshNet\\AiUo.Extensions.SshNet.csproj",
+    "src\\AiUo.Extensions.StackExchangeRedis\\AiUo.Extensions.StackExchangeRedis.csproj",
+    "src\\AiUo.HCaptcha\\AiUo.HCaptcha.csproj",
+    "src\\AiUo.IP2Country\\AiUo.IP2Country.csproj",
+    "src\\AiUo.OAuth\\AiUo.OAuth.csproj",
+    "src\\AiUo.SnowflakeId\\AiUo.SnowflakeId.csproj",
+    "src\\AiUo.AspNet.Hosting\\AiUo.AspNet.Hosting.csproj",
+    "src\\AiUo.Hosting\\AiUo.Hosting.csproj",
+    "src\\AiUo.BIZ.DataSplit\\AiUo.BIZ.DataSplit.csproj",
+    "src\\AiUo.BIZ.DataSplit.JOB\\AiUo.BIZ.DataSplit.JOB.csproj",
+    "src\\AiUo.BIZ.RabbitMQ\\AiUo.BIZ.RabbitMQ.csproj"
+  ],
+  "VsixItem": {
+    "ProjectPath": null,
+    "VsixPath": null,
+    "ConfigPath": null,
+    "Token": "3twuo3jaffjjlqjzbn66ijxcma2qffswyt7ajekwnnsg62jbewgq",
+    "PublisherExePath": null,
+    "MSBuildExePath": null
+  }
+}
