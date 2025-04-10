@@ -1,21 +1,17 @@
-using AiUo.Configuration;
-using AiUo.Extensions.DotNetty;
-using AiUo.Extensions.DotNetty.Configuration;
-using AiUo.Hosting;
-using AiUo.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Diagnostics;
+using AiUo.Configuration;
+using AiUo.Extensions.MQTT;
+using AiUo.Hosting;
+using AiUo.Logging;
 
-namespace AiUo.Extensions.DotNetty;
+namespace AiUo;
 
-/// <summary>
-/// MQTT扩展的主机构建器扩展
-/// </summary>
 public static class MQTTHostBuilderExtensions
 {
     /// <summary>
-    /// 添加MQTT扩展
+    /// 添加MQTT客户端支持
     /// </summary>
     /// <param name="builder">主机构建器</param>
     /// <returns>主机构建器</returns>
@@ -32,33 +28,32 @@ public static class MQTTHostBuilderExtensions
         {
             var container = new MQTTContainer();
             services.AddSingleton(container);
-            
             HostingUtil.RegisterStarting(async () =>
             {
                 await container.InitAsync();
                 if (container.ConsumerAssemblies.Count > 0)
                 {
                     var asms = string.Join('|', container.ConsumerAssemblies.Select(x => x.GetName().Name));
-                    LogUtil.Info("启动 => [MQTT]加载ConsumerAssemblies: {ConsumerAssemblies}", asms);
+                    LogUtil.Info("启动 => [MQTT]加载ConsumerAssemblies: {ConsumerAssemblies}"
+                        , asms);
                 }
             });
-            
             HostingUtil.RegisterStopping(() =>
             {
                 container.ReleaseConsumers();
                 LogUtil.Info("停止 => [MQTT]释放 Consumer");
                 return Task.CompletedTask;
             });
-            
-            HostingUtil.RegisterStopped(async () =>
+            HostingUtil.RegisterStopped(() =>
             {
-                await container.DisposeAsync();
+                container.Dispose();
                 LogUtil.Info("停止 => [MQTT]释放 Client");
+                return Task.CompletedTask;
             });
         });
-        
         watch.Stop();
-        LogUtil.Info("配置 => [MQTT] [{ElapsedMilliseconds} 毫秒]", watch.ElapsedMilliseconds);
+        LogUtil.Info("配置 => [MQTT] [{ElapsedMilliseconds} 毫秒]"
+            , watch.ElapsedMilliseconds);
         return builder;
     }
 }

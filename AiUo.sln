@@ -117,7 +117,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrpcDemo.Client", "demo\Grp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AiUo.Extensions.MagicOnion", "src\AiUo.Extensions.MagicOnion\AiUo.Extensions.MagicOnion.csproj", "{68CF53AF-8000-3F9D-E824-622D1C1B9E56}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AiUo.Extensions.DotNetty", "src\AiUo.Extensions.DotNetty\AiUo.Extensions.DotNetty.csproj", "{53A1F69B-D6C3-923A-8331-2638F66B3E4B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AiUo.Extensions.MQTT", "src\AiUo.Extensions.MQTT\AiUo.Extensions.MQTT.csproj", "{53A1F69B-D6C3-923A-8331-2638F66B3E4B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

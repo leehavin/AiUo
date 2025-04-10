@@ -1,9 +1,9 @@
 using AiUo.Collections;
-using AiUo.Configuration;
-using Microsoft.Extensions.Configuration;
 using AiUo.Extensions.MQTT;
+using Microsoft.Extensions.Configuration;
+using System.Collections.Generic;
 
-namespace AiUo.Extensions.DotNetty.Configuration
+namespace AiUo.Configuration
 {
     public class MQTTSection : ConfigSection
     {
@@ -48,17 +48,17 @@ namespace AiUo.Extensions.DotNetty.Configuration
     }
 }
 
-namespace AiUo.Extensions.DotNetty
+namespace AiUo.Extensions.MQTT
 {
     public class MQTTConnectionStringElement
     {
         public string Name { get; internal set; }
         /// <summary>
-        /// 服务器地址
+        /// MQTT服务器地址
         /// </summary>
         public string Server { get; set; }
         /// <summary>
-        /// 服务器端口
+        /// MQTT服务器端口
         /// </summary>
         public int Port { get; set; } = 1883;
         /// <summary>
@@ -74,7 +74,7 @@ namespace AiUo.Extensions.DotNetty
         /// </summary>
         public string Password { get; set; }
         /// <summary>
-        /// 是否使用TLS/SSL
+        /// 是否使用TLS/SSL连接
         /// </summary>
         public bool UseTls { get; set; }
         /// <summary>
@@ -86,8 +86,44 @@ namespace AiUo.Extensions.DotNetty
         /// </summary>
         public int KeepAlivePeriod { get; set; } = 60;
         /// <summary>
-        /// 连接超时时间（秒）
+        /// 通信超时时间（秒）
         /// </summary>
-        public int ConnectionTimeout { get; set; } = 30;
+        public int CommunicationTimeout { get; set; } = 10;
+        /// <summary>
+        /// 重连延迟（秒）
+        /// </summary>
+        public int ReconnectDelay { get; set; } = 5;
+        /// <summary>
+        /// 是否允许不受信任的证书
+        /// </summary>
+        public bool AllowUntrustedCertificates { get; set; } = true;
+        /// <summary>
+        /// 是否忽略证书链错误
+        /// </summary>
+        public bool IgnoreCertificateChainErrors { get; set; } = true;
+        /// <summary>
+        /// 是否忽略证书吊销错误
+        /// </summary>
+        public bool IgnoreCertificateRevocationErrors { get; set; } = true;
+        /// <summary>
+        /// 客户端证书文件路径
+        /// </summary>
+        public string ClientCertificatePath { get; set; }
+        /// <summary>
+        /// 客户端证书密码
+        /// </summary>
+        public string ClientCertificatePassword { get; set; }
+        /// <summary>
+        /// 服务器证书指纹
+        /// </summary>
+        public string ServerCertificateFingerprint { get; set; }
+        /// <summary>
+        /// 是否启用消息持久化
+        /// </summary>
+        public bool EnablePersistence { get; set; } = false;
+        /// <summary>
+        /// 持久化存储目录
+        /// </summary>
+        public string PersistenceDirectory { get; set; }
     }
 }
