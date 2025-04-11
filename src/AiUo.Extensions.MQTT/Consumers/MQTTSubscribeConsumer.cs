@@ -80,8 +80,8 @@ public abstract class MQTTSubscribeConsumer<TMessage> : IMQTTConsumer
             if (e.ApplicationMessage.Topic != _topic)
                 return;
 
-            var payload = e.ApplicationMessage.PayloadSegment.ToArray();
-            if (payload == null || payload.Length == 0)
+            var payload = e.ApplicationMessage.Payload;
+            if (payload.Length == 0)
                 return;
 
             // 反序列化消息
@@ -99,7 +99,7 @@ public abstract class MQTTSubscribeConsumer<TMessage> : IMQTTConsumer
                     Topic = e.ApplicationMessage.Topic,
                     QosLevel = (int)e.ApplicationMessage.QualityOfServiceLevel,
                     Retain = e.ApplicationMessage.Retain,
-                    MessageId = e.ApplicationMessage.Id ?? Guid.NewGuid().ToString(),
+                    MessageId = Guid.NewGuid().ToString(),
                     Timestamp = DateTime.UtcNow.Ticks
                 };
             }

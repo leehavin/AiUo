@@ -187,15 +187,12 @@ public static class MQTTUtil
         var subscriptionId = Guid.NewGuid();
 
         // 订阅主题
-        var mqttFactory = new MqttClientFactory();
-        var mqttSubscribeOptions = mqttFactory.CreateSubscribeOptionsBuilder()
-            .WithTopicFilter()
+        var mqttTopicFilter = new MqttTopicFilterBuilder()
             .WithTopic(topic)
-            .WithQualityOfServiceLevel((MqttQualityOfServiceLevel)qosLevel)
-            .ApplyTopicFilter()
+            .WithQualityOfServiceLevel((MQTTnet.Protocol.MqttQualityOfServiceLevel)qosLevel)
             .Build();
 
-        client.SubscribeAsync(mqttSubscribeOptions, CancellationToken.None).Wait();
+        client.SubscribeAsync(mqttTopicFilter, CancellationToken.None).Wait();
 
         // 注册消息处理程序
         client.ApplicationMessageReceivedAsync += async e =>
@@ -228,15 +225,12 @@ public static class MQTTUtil
         var subscriptionId = Guid.NewGuid();
 
         // 订阅主题
-        var mqttFactory = new MqttClientFactory();
-        var mqttSubscribeOptions = mqttFactory.CreateSubscribeOptionsBuilder()
-            .WithTopicFilter()
+        var mqttTopicFilter = new MqttTopicFilterBuilder()
             .WithTopic(topic)
-            .WithQualityOfServiceLevel((MqttQualityOfServiceLevel)qosLevel)
-            .ApplyTopicFilter()
+            .WithQualityOfServiceLevel((MQTTnet.Protocol.MqttQualityOfServiceLevel)qosLevel)
             .Build();
 
-        await client.SubscribeAsync(mqttSubscribeOptions, CancellationToken.None);
+        await client.SubscribeAsync(mqttTopicFilter, CancellationToken.None);
 
         // 注册消息处理程序
         client.ApplicationMessageReceivedAsync += async e =>
@@ -261,11 +255,7 @@ public static class MQTTUtil
     public static void Unsubscribe(string topic, string connectionStringName = null)
     {
         var client = GetClient(connectionStringName);
-        var mqttFactory = new MqttClientFactory();
-        var unsubscribeOptions = mqttFactory.CreateUnsubscribeOptionsBuilder()
-            .WithTopicFilter(topic)
-            .Build();
-        client.UnsubscribeAsync(unsubscribeOptions, CancellationToken.None).Wait();
+        client.UnsubscribeAsync(topic, CancellationToken.None).Wait();
         LogUtil.Info("[MQTT] 已取消订阅主题: {Topic}", topic);
     }
 
@@ -277,11 +267,7 @@ public static class MQTTUtil
     public static async Task UnsubscribeAsync(string topic, string connectionStringName = null)
     {
         var client = GetClient(connectionStringName);
-        var mqttFactory = new MqttClientFactory();
-        var unsubscribeOptions = mqttFactory.CreateUnsubscribeOptionsBuilder()
-            .WithTopicFilter(topic)
-            .Build();
-        await client.UnsubscribeAsync(unsubscribeOptions, CancellationToken.None);
+        await client.UnsubscribeAsync(topic, CancellationToken.None);
         LogUtil.Info("[MQTT] 已取消订阅主题: {Topic}", topic);
     }
     #endregion

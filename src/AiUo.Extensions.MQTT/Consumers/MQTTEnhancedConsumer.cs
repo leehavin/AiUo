@@ -12,8 +12,7 @@ namespace AiUo.Extensions.MQTT.Consumers;
 /// 增强的MQTT订阅消费者基类，支持消息过滤和转换
 /// </summary>
 /// <typeparam name="TMessage">消息类型</typeparam>
-public abstract class MQTTEnhancedConsumer<TMessage> : IMQTTConsumer
-    where TMessage : class, new()
+public abstract class MQTTEnhancedConsumer<TMessage> : IMQTTConsumer where TMessage : class, new()
 {
     private IMqttClient _client;
     private string _topic;
@@ -112,8 +111,8 @@ public abstract class MQTTEnhancedConsumer<TMessage> : IMQTTConsumer
             if (e.ApplicationMessage.Topic != _topic)
                 return;
 
-            var payload = e.ApplicationMessage.PayloadSegment.ToArray();
-            if (payload == null || payload.Length == 0)
+            var payload = e.ApplicationMessage.Payload;
+            if (payload.IsEmpty)
                 return;
 
             // 反序列化消息
@@ -131,7 +130,7 @@ public abstract class MQTTEnhancedConsumer<TMessage> : IMQTTConsumer
                     Topic = e.ApplicationMessage.Topic,
                     QosLevel = (int)e.ApplicationMessage.QualityOfServiceLevel,
                     Retain = e.ApplicationMessage.Retain,
-                    MessageId = e.ApplicationMessage.Id ?? Guid.NewGuid().ToString(),
+                    MessageId = Guid.NewGuid().ToString(),
                     Timestamp = DateTime.UtcNow.Ticks
                 };
             }

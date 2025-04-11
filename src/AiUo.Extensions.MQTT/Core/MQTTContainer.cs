@@ -33,8 +33,8 @@ internal class MQTTContainer : IDisposable
                 , _section.AutoLoad
                 , "加载配置文件MQTT:ConsumerAssemblies中项失败。");
         _types = (from t in allTypes
-            where t.IsSubclassOfGeneric(typeof(MQTTSubscribeConsumer<>))
-            select t).ToList();
+                  where t.IsSubclassOfGeneric(typeof(MQTTSubscribeConsumer<>))
+                  select t).ToList();
     }
 
     #region Init
@@ -125,7 +125,7 @@ internal class MQTTContainer : IDisposable
             // 设置保活时间
             if (config.KeepAlivePeriod > 0)
             {
-                clientOptionsBuilder.WithKeepAlive(TimeSpan.FromSeconds(config.KeepAlivePeriod));
+                clientOptionsBuilder.WithKeepAlivePeriod(TimeSpan.FromSeconds(config.KeepAlivePeriod));
             }
 
             // 添加用户名密码认证
@@ -140,7 +140,7 @@ internal class MQTTContainer : IDisposable
             // 添加TLS/SSL支持
             if (config.UseTls)
             {
-                clientOptionsBuilder.WithTlsOptions(new MqttClientTlsOptions
+                var tlsOptions = new MqttClientTlsOptions
                 {
                     AllowUntrustedCertificates = config.AllowUntrustedCertificates,
                     IgnoreCertificateChainErrors = config.IgnoreCertificateChainErrors,
@@ -148,20 +148,32 @@ internal class MQTTContainer : IDisposable
                     CertificateValidationHandler = context =>
                     {
                         // 添加服务器证书指纹验证
-                        if (!string.IsNullOrEmpty(config.ServerCertificateFingerprint) &&
-                            context.Certificate != null && context.Chain != null)
+                        if (!string.IsNullOrEmpty(config.ServerCertificateFingerprint) && context.Certificate != null && context.Chain != null)
                         {
                             // 获取证书指纹
                             var fingerprint = BitConverter.ToString(context.Certificate.GetCertHash()).Replace("-", "").ToLower();
                             return string.Equals(fingerprint, config.ServerCertificateFingerprint.ToLower());
                         }
                         return true;
-                    },
-                     
-                    Certificates = !string.IsNullOrEmpty(config.ClientCertificatePath) ?
-                        GetClientCertificates(config.ClientCertificatePath, config.ClientCertificatePassword) :
-                        null
-                });
+                    }
+                };
+
+                // 添加客户端证书
+                if (!string.IsNullOrEmpty(config.ClientCertificatePath))
+                {
+                    try
+                    {
+                        var certificate = new X509Certificate2(config.ClientCertificatePath, config.ClientCertificatePassword);
+                        tlsOptions.TrustChain.Add(certificate);
+                        // 在MQTTnet 5.0中，客户端证书需要通过TlsOptions设置 
+                    }
+                    catch (Exception ex)
+                    {
+                        LogUtil.Error(ex, "[MQTT] 加载客户端证书失败: {CertificatePath}", config.ClientCertificatePath);
+                    }
+                }
+
+                clientOptionsBuilder.WithTlsOptions(tlsOptions);
             }
 
             var options = clientOptionsBuilder.Build();
