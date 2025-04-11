@@ -112,7 +112,6 @@ public class MQTTServerContainer : IDisposable
     {
         if (!_isInitialized || _server == null)
             return;
-
         try
         {
             await _server.StopAsync();

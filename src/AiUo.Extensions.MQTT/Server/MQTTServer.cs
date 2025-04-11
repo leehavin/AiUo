@@ -79,57 +79,57 @@ public class MQTTServer : IDisposable
             // 配置认证
             if (_options.EnableAuthentication)
             {
-                //optionsBuilder.WithConnectionValidator(context =>
-                //{
-                //    if (_options.ValidateCredentials(context.Username, context.Password))
-                //    {
-                //        context.ReasonCode = MQTTnet.Protocol.MqttConnectReasonCode.Success;
-                //    }
-                //    else
-                //    {
-                //        context.ReasonCode = MQTTnet.Protocol.MqttConnectReasonCode.BadUserNameOrPassword;
-                //    }
+                _server.ValidatingConnectionAsync += context =>
+                {
+                    if (_options.ValidateCredentials(context.UserName, context.Password))
+                    {
+                        context.ReasonCode = MQTTnet.Protocol.MqttConnectReasonCode.Success;
+                    }
+                    else
+                    {
+                        context.ReasonCode = MQTTnet.Protocol.MqttConnectReasonCode.BadUserNameOrPassword;
+                    }
 
-                //    return Task.CompletedTask;
-                //});
+                    return Task.CompletedTask;
+                }; 
             }
 
             // 配置订阅授权
             if (_options.EnableSubscriptionAuthorization)
             {
-                //optionsBuilder.WithSubscriptionInterceptor(context =>
-                //{
-                //    if (_options.AuthorizeSubscription(context.ClientId, context.TopicFilter.Topic))
-                //    {
-                //        context.AcceptSubscription = true;
-                //    }
-                //    else
-                //    {
-                //        context.AcceptSubscription = false;
-                //        context.CloseConnection = _options.CloseConnectionOnUnauthorizedSubscription;
-                //    }
+                _server.InterceptingSubscriptionAsync += context =>
+                {
+                    if (_options.AuthorizeSubscription(context.ClientId, context.TopicFilter.Topic))
+                    {
+                        context.ProcessSubscription = true;
+                    }
+                    else
+                    {
+                        context.ProcessSubscription = false;
+                        context.CloseConnection = _options.CloseConnectionOnUnauthorizedSubscription;
+                    }
 
-                //    return Task.CompletedTask;
-                //});
+                    return Task.CompletedTask;
+                };
             }
 
             // 配置发布授权
             if (_options.EnablePublishAuthorization)
             {
-                //optionsBuilder.WithApplicationMessageInterceptor(context =>
-                //{
-                //    if (_options.AuthorizePublish(context.ClientId, context.ApplicationMessage.Topic))
-                //    {
-                //        context.AcceptPublish = true;
-                //    }
-                //    else
-                //    {
-                //        context.AcceptPublish = false;
-                //        context.CloseConnection = _options.CloseConnectionOnUnauthorizedPublish;
-                //    }
+                _server.InterceptingPublishAsync += context =>
+                {
+                    if (_options.AuthorizePublish(context.ClientId, context.ApplicationMessage.Topic))
+                    {
+                        context.ProcessPublish = true;
+                    }
+                    else
+                    {
+                        context.ProcessPublish = false;
+                        context.CloseConnection = _options.CloseConnectionOnUnauthorizedPublish;
+                    }
 
-                //    return Task.CompletedTask;
-                //}); 
+                    return Task.CompletedTask;
+                };
             }
 
             // 创建服务器实例

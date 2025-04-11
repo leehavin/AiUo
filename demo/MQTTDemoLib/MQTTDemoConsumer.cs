@@ -12,7 +12,7 @@ public class MQTTDemoConsumer : MQTTSubscribeConsumer<MQTTSubscribeMsg>
     /// <summary>
     /// 构造函数
     /// </summary>
-    public MQTTDemoConsumer() : base("mqtt/demo/#")
+    public MQTTDemoConsumer() : base("mqtt/demo/publish")
     {
     }
 

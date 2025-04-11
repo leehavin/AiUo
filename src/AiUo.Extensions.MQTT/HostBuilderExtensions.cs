@@ -36,7 +36,10 @@ public static class MQTTHostBuilderExtensions
             services.AddSingleton(serverContainer);
             
             HostingUtil.RegisterStarting(async () =>
-            {
+            { 
+                // 初始化服务器
+                await serverContainer.InitAsync();
+
                 // 初始化客户端
                 await container.InitAsync();
                 if (container.ConsumerAssemblies.Count > 0)
@@ -45,8 +48,6 @@ public static class MQTTHostBuilderExtensions
                     LogUtil.Info("启动 => [MQTT]加载ConsumerAssemblies: {ConsumerAssemblies}" , asms);
                 }
                 
-                // 初始化服务器
-                await serverContainer.InitAsync();
             });
             
             HostingUtil.RegisterStopping(async () =>
