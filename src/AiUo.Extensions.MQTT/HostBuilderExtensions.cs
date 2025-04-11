@@ -1,10 +1,10 @@
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using System.Diagnostics;
 using AiUo.Configuration;
 using AiUo.Extensions.MQTT;
 using AiUo.Hosting;
 using AiUo.Logging;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using System.Diagnostics;
 
 namespace AiUo;
 
@@ -34,8 +34,7 @@ public static class MQTTHostBuilderExtensions
                 if (container.ConsumerAssemblies.Count > 0)
                 {
                     var asms = string.Join('|', container.ConsumerAssemblies.Select(x => x.GetName().Name));
-                    LogUtil.Info("启动 => [MQTT]加载ConsumerAssemblies: {ConsumerAssemblies}"
-                        , asms);
+                    LogUtil.Info("启动 => [MQTT]加载ConsumerAssemblies: {ConsumerAssemblies}" , asms);
                 }
             });
             HostingUtil.RegisterStopping(() =>
@@ -52,8 +51,7 @@ public static class MQTTHostBuilderExtensions
             });
         });
         watch.Stop();
-        LogUtil.Info("配置 => [MQTT] [{ElapsedMilliseconds} 毫秒]"
-            , watch.ElapsedMilliseconds);
+        LogUtil.Info("配置 => [MQTT] [{ElapsedMilliseconds} 毫秒]" , watch.ElapsedMilliseconds);
         return builder;
     }
 }

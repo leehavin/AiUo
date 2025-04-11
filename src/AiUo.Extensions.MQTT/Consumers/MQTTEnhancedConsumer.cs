@@ -112,7 +112,7 @@ public abstract class MQTTEnhancedConsumer<TMessage> : IMQTTConsumer where TMess
                 return;
 
             var payload = e.ApplicationMessage.Payload;
-            if (payload.IsEmpty)
+            if (payload.Length == 0)
                 return;
 
             // 反序列化消息

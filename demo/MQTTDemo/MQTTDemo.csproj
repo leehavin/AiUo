@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\AiUo.AspNet.Hosting\AiUo.AspNet.Hosting.csproj" />
+    <ProjectReference Include="..\..\src\AiUo.AspNet\AiUo.AspNet.csproj" />
+    <ProjectReference Include="..\..\src\AiUo.Extensions.MQTT\AiUo.Extensions.MQTT.csproj" />
+    <ProjectReference Include="..\..\src\AiUo.Hosting\AiUo.Hosting.csproj" />
+    <ProjectReference Include="..\MQTTDemoLib\MQTTDemoLib.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>
