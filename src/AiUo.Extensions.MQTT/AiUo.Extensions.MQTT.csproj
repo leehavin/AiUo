@@ -11,6 +11,7 @@
   <ItemGroup>
     <PackageReference Include="MQTTnet" Version="5.0.1.1416" />
     <PackageReference Include="MQTTnet.Extensions.TopicTemplate" Version="5.0.1.1416" />
+    <PackageReference Include="MQTTnet.Server" Version="5.0.1.1416" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AiUo\AiUo.csproj" />

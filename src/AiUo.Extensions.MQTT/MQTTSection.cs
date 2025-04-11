@@ -1,5 +1,6 @@
 using AiUo.Collections;
 using AiUo.Extensions.MQTT;
+using AiUo.Extensions.MQTT.Server;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 
@@ -23,6 +24,11 @@ namespace AiUo.Configuration
         public bool ConsumerEnabled { get; set; } = true;
         public string DefaultConnectionStringName { get; set; }
         public Dictionary<string, MQTTConnectionStringElement> ConnectionStrings = new();
+        
+        /// <summary>
+        /// MQTT服务器配置
+        /// </summary>
+        public MQTTServerSection Server { get; set; } = new MQTTServerSection();
 
         public bool AutoLoad { get; set; }
         /// <summary>
@@ -44,6 +50,9 @@ namespace AiUo.Configuration
             // Assemblies
             ConsumerAssemblies = configuration?.GetSection("ConsumerAssemblies").Get<List<string>>()
                 ?? new List<string>();
+                
+            // 绑定服务器配置
+            Server = configuration?.GetSection("Server").Get<MQTTServerSection>() ?? new MQTTServerSection();
         }
     }
 }
