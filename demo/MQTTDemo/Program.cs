@@ -5,7 +5,11 @@ using Microsoft.Extensions.Hosting;
 using MQTTDemoLib;
 
 // 创建并启动主机
-AiUoHost.CreateBuilder().AddMQTTEx().StartAsync();
+AiUoHost.CreateBuilder()
+    .AddMQTTServerEx()
+    .AddMQTTClientEx()
+    .StartAsync();
+
 
 Console.WriteLine("MQTT测试客户端已启动...");
 Console.WriteLine("请选择操作：");

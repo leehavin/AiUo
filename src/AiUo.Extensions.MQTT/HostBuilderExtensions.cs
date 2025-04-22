@@ -16,7 +16,7 @@ public static class MQTTHostBuilderExtensions
     /// </summary>
     /// <param name="builder">主机构建器</param>
     /// <returns>主机构建器</returns>
-    public static IHostBuilder AddMQTTEx(this IHostBuilder builder)
+    public static IHostBuilder AddMQTTClientEx(this IHostBuilder builder)
     {
         var section = ConfigUtil.GetSection<MQTTSection>();
         if (section == null || !section.Enabled || section.ConnectionStrings == null || section.ConnectionStrings.Count == 0)
@@ -31,6 +31,54 @@ public static class MQTTHostBuilderExtensions
             var container = new MQTTContainer();
             services.AddSingleton(container);
             
+            HostingUtil.RegisterStarting(async () =>
+            { 
+                // 初始化客户端
+                await container.InitAsync();
+                if (container.ConsumerAssemblies.Count > 0)
+                {
+                    var asms = string.Join('|', container.ConsumerAssemblies.Select(x => x.GetName().Name));
+                    LogUtil.Info("启动 => [MQTT客户端]加载ConsumerAssemblies: {ConsumerAssemblies}" , asms);
+                }
+            });
+            
+            HostingUtil.RegisterStopping(async () =>
+            {
+                // 释放消费者
+                container.ReleaseConsumers();
+                LogUtil.Info("停止 => [MQTT客户端]释放 Consumer");
+                return;
+            });
+            
+            HostingUtil.RegisterStopped(() =>
+            {
+                // 释放客户端容器
+                container.Dispose();
+                LogUtil.Info("停止 => [MQTT客户端]释放 Client");
+                return Task.CompletedTask;
+            });
+        });
+        watch.Stop();
+        LogUtil.Info("配置 => [MQTT客户端] [{ElapsedMilliseconds} 毫秒]" , watch.ElapsedMilliseconds);
+        return builder;
+    }
+    
+    /// <summary>
+    /// 添加MQTT服务器支持
+    /// </summary>
+    /// <param name="builder">主机构建器</param>
+    /// <returns>主机构建器</returns>
+    public static IHostBuilder AddMQTTServerEx(this IHostBuilder builder)
+    {
+        var section = ConfigUtil.GetSection<MQTTSection>();
+        if (section == null || !section.Enabled)
+            return builder;
+
+        var watch = new Stopwatch();
+        watch.Start();
+
+        builder.ConfigureServices((context, services) =>
+        {
             // 初始化服务器容器
             var serverContainer = new MQTTServerContainer();
             services.AddSingleton(serverContainer);
@@ -39,26 +87,14 @@ public static class MQTTHostBuilderExtensions
             { 
                 // 初始化服务器
                 await serverContainer.InitAsync();
-
-                // 初始化客户端
-                await container.InitAsync();
-                if (container.ConsumerAssemblies.Count > 0)
-                {
-                    var asms = string.Join('|', container.ConsumerAssemblies.Select(x => x.GetName().Name));
-                    LogUtil.Info("启动 => [MQTT]加载ConsumerAssemblies: {ConsumerAssemblies}" , asms);
-                }
-                
+                LogUtil.Info("启动 => [MQTT服务器]初始化完成");
             });
             
             HostingUtil.RegisterStopping(async () =>
             {
                 // 停止服务器
                 await serverContainer.StopAsync();
-                LogUtil.Info("停止 => [MQTT]停止服务器");
-                
-                // 释放消费者
-                container.ReleaseConsumers();
-                LogUtil.Info("停止 => [MQTT]释放 Consumer");
+                LogUtil.Info("停止 => [MQTT服务器]停止服务器");
                 return;
             });
             
@@ -66,15 +102,12 @@ public static class MQTTHostBuilderExtensions
             {
                 // 释放服务器容器
                 serverContainer.Dispose();
-                
-                // 释放客户端容器
-                container.Dispose();
-                LogUtil.Info("停止 => [MQTT]释放 Client 和 Server");
+                LogUtil.Info("停止 => [MQTT服务器]释放 Server");
                 return Task.CompletedTask;
             });
         });
         watch.Stop();
-        LogUtil.Info("配置 => [MQTT] [{ElapsedMilliseconds} 毫秒]" , watch.ElapsedMilliseconds);
+        LogUtil.Info("配置 => [MQTT服务器] [{ElapsedMilliseconds} 毫秒]" , watch.ElapsedMilliseconds);
         return builder;
-    }
+    } 
 }
