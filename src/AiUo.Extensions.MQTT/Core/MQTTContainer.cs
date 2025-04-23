@@ -3,6 +3,7 @@ using AiUo.Configuration;
 using AiUo.Logging;
 using AiUo.Reflection;
 using MQTTnet;
+using MQTTnet.Protocol;
 using System.Collections.Concurrent;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
@@ -111,10 +112,12 @@ internal class MQTTContainer : IDisposable
         {
             var factory = new MqttClientFactory();
             var client = factory.CreateMqttClient();
+            var clientOptions = _section.ClientOptions;
 
+            // 生成客户端ID，如果配置了使用随机后缀，则添加随机GUID
             var clientId = string.IsNullOrEmpty(config.ClientId)
                 ? $"{ConfigUtil.Project.ProjectId}-{Guid.NewGuid()}"
-                : config.ClientId;
+                : (clientOptions.UseRandomClientIdSuffix ? $"{config.ClientId}-{Guid.NewGuid().ToString("N").Substring(0, 8)}" : config.ClientId);
 
             // 创建MQTT客户端选项
             var clientOptionsBuilder = new MqttClientOptionsBuilder()
@@ -176,26 +179,83 @@ internal class MQTTContainer : IDisposable
                 clientOptionsBuilder.WithTlsOptions(tlsOptions);
             }
 
+            // 添加遗嘱消息
+            if (clientOptions.EnableLastWill && !string.IsNullOrEmpty(clientOptions.LastWillTopic))
+            {
+                clientOptionsBuilder.WithWillTopic(clientOptions.LastWillTopic)
+                    .WithWillPayload(clientOptions.LastWillMessage)
+                    .WithWillQualityOfServiceLevel((MqttQualityOfServiceLevel)clientOptions.LastWillQoS)
+                    .WithWillRetain(clientOptions.LastWillRetain);
+            }
+
+            // 禁用密钥环，解决"Unknown element with name 'doc' found in keyring"警告
+            if (clientOptions.DisableKeyring)
+            {
+                // 使用MQTTnet的属性设置方式禁用密钥环 
+                clientOptionsBuilder.WithUserProperty("DisableKeyring", "true");
+            }
+
             var options = clientOptionsBuilder.Build();
 
             // 连接客户端
-            client.ConnectAsync(options, CancellationToken.None).Wait();
-
-            // 添加日志
-            if (_section.DebugLogEnabled)
+            try
             {
-                client.ConnectedAsync += e =>
-                {
-                    LogUtil.Info("[MQTT] 已连接到服务器 {Server}:{Port}", config.Server, config.Port);
-                    return Task.CompletedTask;
-                };
+                client.ConnectAsync(options, CancellationToken.None).Wait();
+            }
+            catch (Exception ex)
+            {
+                LogUtil.Error(ex, "[MQTT] 连接服务器失败: {Server}:{Port}", config.Server, config.Port);
+            }
 
-                client.DisconnectedAsync += e =>
+            // 添加自动重连和日志
+            int reconnectAttempts = 0;
+            client.DisconnectedAsync += async e =>
+            {
+                if (_section.DebugLogEnabled)
                 {
                     LogUtil.Info("[MQTT] 已断开连接，原因: {Reason}", e.ReasonString);
-                    return Task.CompletedTask;
-                };
-            }
+                }
+
+                // 检查是否需要自动重连
+                if (config.AutoReconnect && reconnectAttempts < clientOptions.MaxReconnectAttempts)
+                {
+                    reconnectAttempts++;
+                    // 使用指数退避算法计算重连延迟
+                    var delay = Math.Min(clientOptions.AutoReconnectDelayMs * Math.Pow(1.5, reconnectAttempts - 1), 60000); // 最大60秒
+                    
+                    LogUtil.Info("[MQTT] 尝试重新连接 {Server}:{Port}，第 {Attempt} 次尝试，延迟 {Delay} 毫秒", 
+                        config.Server, config.Port, reconnectAttempts, (int)delay);
+                    
+                    await Task.Delay((int)delay);
+                    try
+                    {
+                        await client.ConnectAsync(options, CancellationToken.None);
+                        // 重连成功，重置计数器
+                        reconnectAttempts = 0;
+                    }
+                    catch (Exception ex)
+                    {
+                        LogUtil.Error(ex, "[MQTT] 重新连接失败: {Server}:{Port}", config.Server, config.Port);
+                    }
+                }
+                else if (reconnectAttempts >= clientOptions.MaxReconnectAttempts)
+                {
+                    LogUtil.Error("[MQTT] 达到最大重连尝试次数 {MaxAttempts}，停止重连", clientOptions.MaxReconnectAttempts);
+                }
+                return;
+            };
+
+            // 添加连接成功日志
+            client.ConnectedAsync += e =>
+            {
+                if (_section.DebugLogEnabled)
+                {
+                    LogUtil.Info("[MQTT] 已连接到服务器 {Server}:{Port}", config.Server, config.Port);
+                }
+                // 重置重连计数器
+                reconnectAttempts = 0;
+                return Task.FromResult(0);
+            };
 
             return client;
         });

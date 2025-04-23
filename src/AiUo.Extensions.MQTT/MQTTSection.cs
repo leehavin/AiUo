@@ -30,6 +30,11 @@ namespace AiUo.Configuration
         /// </summary>
         public MQTTServerSection Server { get; set; } = new MQTTServerSection();
 
+        /// <summary>
+        /// MQTT客户端选项配置
+        /// </summary>
+        public MQTTClientOptions ClientOptions { get; set; } = new MQTTClientOptions();
+
         public bool AutoLoad { get; set; }
         /// <summary>
         /// 消息处理器所在的程序集,用于消费注册
@@ -53,6 +58,9 @@ namespace AiUo.Configuration
                 
             // 绑定服务器配置
             Server = configuration?.GetSection("Server").Get<MQTTServerSection>() ?? new MQTTServerSection();
+            
+            // 绑定客户端选项配置
+            ClientOptions = configuration?.GetSection("ClientOptions").Get<MQTTClientOptions>() ?? new MQTTClientOptions();
         }
     }
 }
@@ -102,6 +110,14 @@ namespace AiUo.Extensions.MQTT
         /// 重连延迟（秒）
         /// </summary>
         public int ReconnectDelay { get; set; } = 5;
+        /// <summary>
+        /// 是否自动重连
+        /// </summary>
+        public bool AutoReconnect { get; set; } = true;
+        /// <summary>
+        /// 最大挂起消息数量
+        /// </summary>
+        public int MaxPendingMessages { get; set; } = 100;
         /// <summary>
         /// 是否允许不受信任的证书
         /// </summary>
