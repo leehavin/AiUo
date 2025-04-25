@@ -1,3 +1,4 @@
+using AiUo;
 using AiUo.Extensions.SMS;
 using AiUo.Extensions.SMS.Core;
 using AiUo.Extensions.SMS.Providers;
@@ -22,15 +23,10 @@ namespace SmsDemo
             Console.WriteLine("短信服务示例程序启动...");
 
             // 创建主机
-            var host = AiUoHost.CreateDefaultBuilder(args)
+            var host = AiUoHost.CreateBuilder()
                 .ConfigureAppConfiguration((context, config) =>
                 {
                     config.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
-                })
-                .ConfigureAiUo(aiuo =>
-                {
-                    // 注册短信服务
-                    aiuo.UseSMS();
                 })
                 .ConfigureServices((context, services) =>
                 {
@@ -188,19 +184,6 @@ namespace SmsDemo
                     { "amount", "99.99" }
                 }
             };
-
-            // 临时切换到腾讯云供应商
-            var tencentSmsService = _smsService is Providers.TencentSmsService
-                ? (Providers.TencentSmsService)_smsService
-                : new Providers.TencentSmsService(
-                    Microsoft.Extensions.Options.Options.Create(new SmsOptions { Provider = "Tencent" }),
-                    _logger.BeginScope<Providers.TencentSmsService>() as ILogger<Providers.TencentSmsService> ?? _logger as ILogger<Providers.TencentSmsService>,
-                    new System.Net.Http.HttpClient(),
-                    _templateService);
-            var tencentResult = await tencentSmsService.SendAsync(tencentMessage);
-            Console.WriteLine(tencentResult.Success
-                ? $"腾讯云短信发送成功！消息ID：{tencentResult.MessageId}"
-                : $"腾讯云短信发送失败！错误码：{tencentResult.ErrorCode}，错误信息：{tencentResult.ErrorMessage}");
         }
     }
 }
