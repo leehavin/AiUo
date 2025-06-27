@@ -129,6 +129,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AiUo.Extensions.SMS", "src\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmsDemo", "demo\SmsDemo\SmsDemo.csproj", "{CD197C22-9033-954F-C486-7DEDB6ED1E9F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentValidationDemo", "demo\FluentValidationDemo\FluentValidationDemo.csproj", "{2D96BEEC-190D-6DB7-759B-B6DBC8CC7540}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -331,6 +333,10 @@ Global
 		{CD197C22-9033-954F-C486-7DEDB6ED1E9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CD197C22-9033-954F-C486-7DEDB6ED1E9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CD197C22-9033-954F-C486-7DEDB6ED1E9F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2D96BEEC-190D-6DB7-759B-B6DBC8CC7540}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D96BEEC-190D-6DB7-759B-B6DBC8CC7540}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D96BEEC-190D-6DB7-759B-B6DBC8CC7540}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D96BEEC-190D-6DB7-759B-B6DBC8CC7540}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -391,6 +397,7 @@ Global
 		{83299651-C1FE-5562-712C-19BC8E79FA2B} = {037B270E-8430-439E-8132-597FDDC74C16}
 		{8A1CA7A2-6F2A-33DF-75EE-B31B0D1C6173} = {1FF166BB-BDA2-4A20-8EE9-209B210B1185}
 		{CD197C22-9033-954F-C486-7DEDB6ED1E9F} = {479C6C03-AE11-4CF0-B338-B6E98FE09C25}
+		{2D96BEEC-190D-6DB7-759B-B6DBC8CC7540} = {479C6C03-AE11-4CF0-B338-B6E98FE09C25}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A6FDC92E-FBF2-40CE-9A71-2A4B6A4E6F3E}

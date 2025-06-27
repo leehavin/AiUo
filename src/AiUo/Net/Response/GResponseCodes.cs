@@ -8,6 +8,8 @@
 /// </summary>
 public class GResponseCodes
 {
+    public const string G_SUCCESS= "G_SUCCESS";
+
     #region 基础
     /// <summary>
     /// 请求错误
