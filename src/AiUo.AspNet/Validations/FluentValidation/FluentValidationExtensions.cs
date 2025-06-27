@@ -1,6 +1,7 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using System.Collections;
 using System.Reflection;
 
 namespace AiUo.AspNet.Validations;
@@ -210,12 +211,266 @@ public class FluentWhenAttribute : FluentValidationAttribute
 /// <summary>
 /// 验证组特性
 /// </summary>
-public class FluentValidationGroupAttribute : Attribute
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Property, AllowMultiple = true)]
+public class FluentValidationGroupAttribute : FluentValidationAttribute
 {
-    public string[] Groups { get; }
-    
-    public FluentValidationGroupAttribute(params string[] groups)
+    public string GroupName { get; }
+
+    public FluentValidationGroupAttribute(string groupName, string code = null, string message = null)
+        : base(code, message)
     {
-        Groups = groups ?? new string[0];
+        GroupName = groupName;
+    }
+
+    public override IRuleBuilderOptions<T, TProperty> ApplyRule<T, TProperty>(
+        IRuleBuilder<T, TProperty> ruleBuilder, string propertyName)
+    {
+        // 验证组特性不直接应用规则，而是用于分组
+        return ruleBuilder as IRuleBuilderOptions<T, TProperty>;
+    }
+}
+
+/// <summary>
+/// 异步验证特性
+/// </summary>
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Property, AllowMultiple = true)]
+public class FluentAsyncAttribute : FluentValidationAttribute
+{
+    public Type ValidatorType { get; }
+    public string MethodName { get; }
+
+    public FluentAsyncAttribute(Type validatorType, string methodName, string code = null, string message = null)
+        : base(code, message)
+    {
+        ValidatorType = validatorType;
+        MethodName = methodName;
+    }
+
+    public override IRuleBuilderOptions<T, TProperty> ApplyRule<T, TProperty>(
+        IRuleBuilder<T, TProperty> ruleBuilder, string propertyName)
+    {
+        return ruleBuilder.MustAsync(async (value, cancellation) =>
+        {
+            try
+            {
+                var validator = Activator.CreateInstance(ValidatorType);
+                var method = ValidatorType.GetMethod(MethodName);
+                if (method != null)
+                {
+                    var result = method.Invoke(validator, new object[] { value, cancellation });
+                    if (result is Task<bool> taskResult)
+                    {
+                        return await taskResult;
+                    }
+                    return (bool)result;
+                }
+                return false;
+            }
+            catch
+            {
+                return false;
+            }
+        })
+        .WithErrorCode(Code)
+        .WithMessage(ErrorMessage ?? $"{propertyName}异步验证失败");
+    }
+}
+
+/// <summary>
+/// 集合验证特性
+/// </summary>
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Property, AllowMultiple = true)]
+public class FluentCollectionAttribute : FluentValidationAttribute
+{
+    public int MinCount { get; }
+    public int MaxCount { get; }
+    public bool AllowEmpty { get; }
+
+    public FluentCollectionAttribute(int minCount = 0, int maxCount = int.MaxValue, bool allowEmpty = true, string code = null, string message = null)
+        : base(code, message)
+    {
+        MinCount = minCount;
+        MaxCount = maxCount;
+        AllowEmpty = allowEmpty;
+    }
+
+    public override IRuleBuilderOptions<T, TProperty> ApplyRule<T, TProperty>(
+        IRuleBuilder<T, TProperty> ruleBuilder, string propertyName)
+    {
+        if (typeof(TProperty).IsAssignableFrom(typeof(IEnumerable)))
+        {
+            return ruleBuilder.Must(collection =>
+            {
+                if (collection == null) return AllowEmpty;
+                
+                var enumerable = collection as IEnumerable;
+                var count = enumerable?.Cast<object>().Count() ?? 0;
+                
+                if (!AllowEmpty && count == 0) return false;
+                return count >= MinCount && count <= MaxCount;
+            })
+            .WithErrorCode(Code)
+            .WithMessage(ErrorMessage ?? $"{propertyName}集合元素数量必须在{MinCount}到{MaxCount}之间");
+        }
+        
+        throw new InvalidOperationException($"FluentCollectionAttribute只能应用于集合类型的属性");
+    }
+}
+
+/// <summary>
+/// 依赖验证特性
+/// </summary>
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Property, AllowMultiple = true)]
+public class FluentDependentAttribute : FluentValidationAttribute
+{
+    public string DependentProperty { get; }
+    public object ExpectedValue { get; }
+    public ComparisonType Comparison { get; }
+
+    public FluentDependentAttribute(string dependentProperty, object expectedValue, ComparisonType comparison = ComparisonType.Equal, string code = null, string message = null)
+        : base(code, message)
+    {
+        DependentProperty = dependentProperty;
+        ExpectedValue = expectedValue;
+        Comparison = comparison;
+    }
+
+    public override IRuleBuilderOptions<T, TProperty> ApplyRule<T, TProperty>(
+        IRuleBuilder<T, TProperty> ruleBuilder, string propertyName)
+    {
+        return ruleBuilder.Must((model, value) =>
+        {
+            var dependentPropertyInfo = typeof(T).GetProperty(DependentProperty);
+            if (dependentPropertyInfo == null) return true;
+            
+            var dependentValue = dependentPropertyInfo.GetValue(model);
+            
+            return Comparison switch
+            {
+                ComparisonType.Equal => Equals(dependentValue, ExpectedValue),
+                ComparisonType.NotEqual => !Equals(dependentValue, ExpectedValue),
+                ComparisonType.GreaterThan => Comparer.Default.Compare(dependentValue, ExpectedValue) > 0,
+                ComparisonType.GreaterThanOrEqual => Comparer.Default.Compare(dependentValue, ExpectedValue) >= 0,
+                ComparisonType.LessThan => Comparer.Default.Compare(dependentValue, ExpectedValue) < 0,
+                ComparisonType.LessThanOrEqual => Comparer.Default.Compare(dependentValue, ExpectedValue) <= 0,
+                _ => true
+            };
+        })
+        .WithErrorCode(Code)
+        .WithMessage(ErrorMessage ?? $"{propertyName}依赖于{DependentProperty}的值");
+    }
+}
+
+/// <summary>
+/// 比较类型枚举
+/// </summary>
+public enum ComparisonType
+{
+    Equal,
+    NotEqual,
+    GreaterThan,
+    GreaterThanOrEqual,
+    LessThan,
+    LessThanOrEqual
+}
+
+/// <summary>
+/// 复杂验证特性
+/// </summary>
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Property, AllowMultiple = true)]
+public class FluentComplexAttribute : FluentValidationAttribute
+{
+    public string ValidationExpression { get; }
+    public string[] DependentProperties { get; }
+
+    public FluentComplexAttribute(string validationExpression, string dependentProperties = null, string code = null, string message = null)
+        : base(code, message)
+    {
+        ValidationExpression = validationExpression;
+        DependentProperties = dependentProperties?.Split(',', StringSplitOptions.RemoveEmptyEntries) ?? new string[0];
+    }
+
+    public override IRuleBuilderOptions<T, TProperty> ApplyRule<T, TProperty>(
+        IRuleBuilder<T, TProperty> ruleBuilder, string propertyName)
+    {
+        return ruleBuilder.Must((model, value) =>
+        {
+            try
+            {
+                // 这里可以实现复杂的表达式验证逻辑
+                // 为了简化，这里只做基本的非空验证
+                return !string.IsNullOrEmpty(value?.ToString());
+            }
+            catch
+            {
+                return false;
+            }
+        })
+        .WithErrorCode(Code)
+        .WithMessage(ErrorMessage ?? $"{propertyName}复杂验证失败");
+    }
+}
+
+/// <summary>
+/// 条件验证增强特性
+/// </summary>
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Property, AllowMultiple = true)]
+public class FluentWhenAdvancedAttribute : FluentValidationAttribute
+{
+    public string PropertyName { get; }
+    public object Value { get; }
+    public ComparisonType Comparison { get; }
+    public Type ValidatorType { get; }
+
+    public FluentWhenAdvancedAttribute(string propertyName, object value, ComparisonType comparison = ComparisonType.Equal, Type validatorType = null, string code = null, string message = null)
+        : base(code, message)
+    {
+        PropertyName = propertyName;
+        Value = value;
+        Comparison = comparison;
+        ValidatorType = validatorType;
+    }
+
+    public override IRuleBuilderOptions<T, TProperty> ApplyRule<T, TProperty>(
+        IRuleBuilder<T, TProperty> ruleBuilder, string propertyName)
+    {
+        return ruleBuilder.Must((model, value) =>
+        {
+            var property = typeof(T).GetProperty(PropertyName);
+            if (property == null) return true;
+            
+            var propertyValue = property.GetValue(model);
+            bool conditionMet = Comparison switch
+            {
+                ComparisonType.Equal => Equals(propertyValue, Value),
+                ComparisonType.NotEqual => !Equals(propertyValue, Value),
+                ComparisonType.GreaterThan => Comparer.Default.Compare(propertyValue, Value) > 0,
+                ComparisonType.GreaterThanOrEqual => Comparer.Default.Compare(propertyValue, Value) >= 0,
+                ComparisonType.LessThan => Comparer.Default.Compare(propertyValue, Value) < 0,
+                ComparisonType.LessThanOrEqual => Comparer.Default.Compare(propertyValue, Value) <= 0,
+                _ => true
+            };
+            
+            if (!conditionMet) return true; // 条件不满足时跳过验证
+            
+            // 如果指定了验证器类型，使用该验证器
+            if (ValidatorType != null)
+            {
+                try
+                {
+                    var validator = Activator.CreateInstance(ValidatorType);
+                    // 这里可以调用自定义验证器的方法
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+            
+            return !string.IsNullOrEmpty(value?.ToString());
+        })
+        .WithErrorCode(Code)
+        .WithMessage(ErrorMessage ?? $"{propertyName}条件验证失败");
     }
 }

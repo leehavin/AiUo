@@ -1,4 +1,6 @@
 using AiUo.AspNet.Validations;
+using AiUo.AspNet.Validations.FluentValidation;
+using System.ComponentModel.DataAnnotations;
 
 namespace FluentValidationDemo.Models;
 
@@ -47,8 +49,26 @@ public class RegisterModel
     /// <summary>
     /// 手机号（可选）
     /// </summary>
-    [FluentRegularExpression(@"^1[3-9]\d{9}$", "PHONE_FORMAT", "手机号格式不正确")]
+    [FluentChinesePhone("PHONE_FORMAT", "手机号格式不正确")]
     public string Phone { get; set; }
+
+    /// <summary>
+    /// 身份证号（可选）
+    /// </summary>
+    [FluentChineseIdCard("ID_CARD_FORMAT", "身份证号格式不正确")]
+    public string IdCard { get; set; }
+
+    /// <summary>
+    /// 个人网站（可选）
+    /// </summary>
+    [FluentUrl("WEBSITE_FORMAT", "个人网站URL格式不正确")]
+    public string Website { get; set; }
+
+    /// <summary>
+    /// 出生日期（可选）
+    /// </summary>
+    [FluentDateRange(allowFuture: false, code: "BIRTH_DATE_RANGE", message: "出生日期不能是未来时间")]
+    public DateTime? BirthDate { get; set; }
 }
 
 /// <summary>
@@ -159,26 +179,129 @@ public class FileUploadModel
     /// 文件名
     /// </summary>
     [FluentRequired("FILE_NAME_REQUIRED", "文件名不能为空")]
-    [FluentMaxLength(255, "FILE_NAME_MAX_LENGTH", "文件名最多255个字符")]
+    [FluentMaxLength(255, "FILE_NAME_MAX_LENGTH", "文件名长度不能超过255个字符")]
+    [FluentFileExtension(".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx", "FILE_EXTENSION", "不支持的文件格式")]
     public string FileName { get; set; }
 
     /// <summary>
     /// 文件大小（字节）
     /// </summary>
-    [FluentRange(1, 10 * 1024 * 1024, "FILE_SIZE_RANGE", "文件大小必须在1字节到10MB之间")]
+    [FluentRequired("FILE_SIZE_REQUIRED", "文件大小不能为空")]
+    [FluentRange(1, 10485760, "FILE_SIZE_RANGE", "文件大小必须在1B-10MB之间")] // 10MB = 10 * 1024 * 1024
     public long FileSize { get; set; }
 
     /// <summary>
     /// 文件类型
     /// </summary>
     [FluentRequired("FILE_TYPE_REQUIRED", "文件类型不能为空")]
-    [FluentRegularExpression(@"^(image|document|video|audio)$", "FILE_TYPE_INVALID", "文件类型只能是：image、document、video、audio")]
-    public string FileType { get; set; }
+    [FluentEnum(typeof(FileTypeEnum), "FILE_TYPE_ENUM", "文件类型必须是有效的枚举值")]
+    public FileTypeEnum FileType { get; set; }
 
     /// <summary>
-    /// 文件扩展名
+    /// 元数据
     /// </summary>
-    [FluentRequired("FILE_EXT_REQUIRED", "文件扩展名不能为空")]
-    [FluentRegularExpression(@"^\.(jpg|jpeg|png|gif|pdf|doc|docx|xls|xlsx|mp4|mp3)$", "FILE_EXT_INVALID", "不支持的文件扩展名")]
-    public string FileExtension { get; set; }
+    [FluentJson("METADATA_JSON", "元数据必须是有效的JSON格式")]
+    public string Metadata { get; set; }
+}
+
+/// <summary>
+/// 文件类型枚举
+/// </summary>
+public enum FileTypeEnum
+{
+    Image = 1,
+    Document = 2,
+    Video = 3,
+    Audio = 4
+}
+
+/// <summary>
+/// 高级用户模型（展示复杂验证）
+/// </summary>
+public class AdvancedUserModel
+{
+    [FluentRequired("USER_NAME_REQUIRED", "用户名不能为空")]
+    [FluentLength(3, 20, "USER_NAME_LENGTH", "用户名长度必须在3-20个字符之间")]
+    public string UserName { get; set; }
+
+    [FluentRequired("EMAIL_REQUIRED", "邮箱不能为空")]
+    [FluentEmail("EMAIL_FORMAT", "邮箱格式不正确")]
+    public string Email { get; set; }
+
+    [FluentRequired("USER_TYPE_REQUIRED", "用户类型不能为空")]
+    public UserType UserType { get; set; }
+
+    // 当用户类型为VIP时，信用卡号为必填
+    [FluentWhenAdvanced(nameof(UserType), UserType.VIP, code: "CREDIT_CARD_REQUIRED_FOR_VIP", message: "VIP用户必须提供信用卡号")]
+    [FluentCreditCard("CREDIT_CARD_FORMAT", "信用卡号格式不正确")]
+    public string CreditCardNumber { get; set; }
+
+    // 依赖验证：确认邮箱必须与邮箱相同
+    [FluentDependent(nameof(Email), null, ComparisonType.NotEqual, "CONFIRM_EMAIL_REQUIRED", "请确认邮箱地址")]
+    [FluentCompare(nameof(Email), "CONFIRM_EMAIL_MATCH", "确认邮箱与邮箱不匹配")]
+    public string ConfirmEmail { get; set; }
+
+    [FluentCollection(minCount: 1, maxCount: 5, allowEmpty: false, code: "TAGS_COUNT", message: "标签数量必须在1-5个之间")]
+    public List<string> Tags { get; set; }
+
+    [FluentChineseIdCard("ID_CARD_FORMAT", "身份证号格式不正确")]
+    public string IdCard { get; set; }
+
+    [FluentChinesePhone("PHONE_FORMAT", "手机号格式不正确")]
+    public string Phone { get; set; }
+}
+
+/// <summary>
+/// 用户类型枚举
+/// </summary>
+public enum UserType
+{
+    Regular = 1,
+    VIP = 2,
+    Premium = 3
+}
+
+/// <summary>
+/// 公司信息模型
+/// </summary>
+public class CompanyModel
+{
+    [FluentRequired("COMPANY_NAME_REQUIRED", "公司名称不能为空")]
+    [FluentLength(2, 100, "COMPANY_NAME_LENGTH", "公司名称长度必须在2-100个字符之间")]
+    public string CompanyName { get; set; }
+
+    [FluentUnifiedSocialCreditCode("CREDIT_CODE_FORMAT", "统一社会信用代码格式不正确")]
+    public string UnifiedSocialCreditCode { get; set; }
+
+    [FluentRequired("ESTABLISHED_DATE_REQUIRED", "成立日期不能为空")]
+    [FluentDateRange(maxDate: "2024-12-31", allowFuture: false, code: "ESTABLISHED_DATE_RANGE", message: "成立日期不能是未来时间")]
+    public DateTime EstablishedDate { get; set; }
+
+    [FluentUrl("WEBSITE_FORMAT", "公司网站URL格式不正确")]
+    public string Website { get; set; }
+
+    [FluentEmail("CONTACT_EMAIL_FORMAT", "联系邮箱格式不正确")]
+    public string ContactEmail { get; set; }
+
+    [FluentChinesePhone("CONTACT_PHONE_FORMAT", "联系电话格式不正确")]
+    public string ContactPhone { get; set; }
+
+    [FluentCollection(minCount: 1, maxCount: 10, allowEmpty: false, code: "DEPARTMENTS_COUNT", message: "部门数量必须在1-10个之间")]
+    public List<DepartmentModel> Departments { get; set; }
+}
+
+/// <summary>
+/// 部门模型
+/// </summary>
+public class DepartmentModel
+{
+    [FluentRequired("DEPT_NAME_REQUIRED", "部门名称不能为空")]
+    [FluentLength(2, 50, "DEPT_NAME_LENGTH", "部门名称长度必须在2-50个字符之间")]
+    public string Name { get; set; }
+
+    [FluentRange(1, 1000, "EMPLOYEE_COUNT_RANGE", "员工数量必须在1-1000之间")]
+    public int EmployeeCount { get; set; }
+
+    [FluentEmail("DEPT_EMAIL_FORMAT", "部门邮箱格式不正确")]
+    public string Email { get; set; }
 }

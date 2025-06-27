@@ -179,7 +179,7 @@ public class DemoController : ControllerBase
                 FileSize = model.FileSize,
                 FileType = model.FileType,
                 UploadTime = DateTime.Now,
-                Url = $"/files/{Guid.NewGuid():N}{model.FileExtension}"
+                Url = $"/files/{Guid.NewGuid():N}.{model.FileType.ToString().ToLower()}"
             }
         });
     }
@@ -335,9 +335,216 @@ public class DemoController : ControllerBase
                     "可以使用 /api/demo/login 测试手动验证",
                     "可以使用 /api/demo/products 测试数值验证",
                     "可以使用 /api/demo/orders 测试复杂验证",
-                    "可以使用 /api/demo/batch-register 测试批量验证"
+                    "可以使用 /api/demo/batch-register 测试批量验证",
+                    "可以使用 /api/demo/advanced-user 测试高级用户验证",
+                    "可以使用 /api/demo/company 测试公司信息验证"
                 }
             }
+        });
+    }
+
+    /// <summary>
+    /// 高级用户注册（展示复杂验证特性）
+    /// </summary>
+    /// <param name="model">高级用户模型</param>
+    /// <returns></returns>
+    [HttpPost("advanced-user")]
+    public async Task<IActionResult> CreateAdvancedUser([FromBody] AdvancedUserModel model)
+    {
+        // 自动验证已通过，直接处理业务逻辑
+        return Ok(new
+        {
+            Code = GResponseCodes.G_SUCCESS,
+            Message = "高级用户创建成功",
+            Data = new
+            {
+                model.UserName,
+                model.Email,
+                model.UserType,
+                HasCreditCard = !string.IsNullOrEmpty(model.CreditCardNumber),
+                TagCount = model.Tags?.Count ?? 0,
+                HasIdCard = !string.IsNullOrEmpty(model.IdCard),
+                HasPhone = !string.IsNullOrEmpty(model.Phone),
+                CreateTime = DateTime.Now
+            }
+        });
+    }
+
+    /// <summary>
+    /// 公司信息注册
+    /// </summary>
+    /// <param name="model">公司信息模型</param>
+    /// <returns></returns>
+    [HttpPost("company")]
+    public async Task<IActionResult> CreateCompany([FromBody] CompanyModel model)
+    {
+        // 自动验证已通过，直接处理业务逻辑
+        return Ok(new
+        {
+            Code = GResponseCodes.G_SUCCESS,
+            Message = "公司信息注册成功",
+            Data = new
+            {
+                model.CompanyName,
+                model.UnifiedSocialCreditCode,
+                model.EstablishedDate,
+                model.Website,
+                model.ContactEmail,
+                model.ContactPhone,
+                DepartmentCount = model.Departments?.Count ?? 0,
+                CreateTime = DateTime.Now
+            }
+        });
+    }
+
+    /// <summary>
+    /// 测试手动验证高级用户
+    /// </summary>
+    /// <param name="model">高级用户模型</param>
+    /// <returns></returns>
+    [HttpPost("advanced-user/manual-validation")]
+    public async Task<IActionResult> ManualValidateAdvancedUser([FromBody] AdvancedUserModel model)
+    {
+        // 手动验证
+        var validationResult = await model.ValidateModelAsync();
+        
+        if (!validationResult.IsValid)
+        {
+            return BadRequest(new
+            {
+                Code = GResponseCodes.G_BAD_REQUEST,
+                Message = "验证失败",
+                Errors = validationResult.ToDictionary(),
+                FirstError = validationResult.FirstErrorMessage
+            });
+        }
+
+        return Ok(new
+        {
+            Code = GResponseCodes.G_SUCCESS,
+            Message = "高级用户验证通过",
+            Data = new
+            {
+                model.UserName,
+                model.Email,
+                model.UserType,
+                ValidationInfo = new
+                {
+                    IsValid = validationResult.IsValid,
+                    ErrorCount = validationResult.Errors?.Count() ?? 0
+                },
+                TestTime = DateTime.Now
+            }
+        });
+    }
+
+    /// <summary>
+    /// 获取验证规则示例
+    /// </summary>
+    /// <param name="modelName">模型名称</param>
+    /// <returns></returns>
+    [HttpGet("validation-examples/{modelName}")]
+    public IActionResult GetValidationExamples(string modelName)
+    {
+        object examples = modelName.ToLowerInvariant() switch
+        {
+            "register" => new
+            {
+                ModelName = "RegisterModel",
+                Description = "用户注册模型验证示例",
+                ValidExample = new
+                {
+                    UserName = "testuser",
+                    Email = "test@example.com",
+                    Password = "Test123",
+                    ConfirmPassword = "Test123",
+                    Age = 25,
+                    Phone = "13812345678",
+                    IdCard = "110101199001011234",
+                    Website = "https://www.example.com",
+                    BirthDate = "1990-01-01"
+                },
+                InvalidExample = new
+                {
+                    UserName = "ab", // 太短
+                    Email = "invalid-email", // 格式错误
+                    Password = "123", // 太短
+                    ConfirmPassword = "456", // 不匹配
+                    Age = 17, // 太小
+                    Phone = "123", // 格式错误
+                    IdCard = "123", // 格式错误
+                    Website = "not-a-url", // 格式错误
+                    BirthDate = "2030-01-01" // 未来时间
+                }
+            },
+            "advanceduser" => new
+            {
+                ModelName = "AdvancedUserModel",
+                Description = "高级用户模型验证示例",
+                ValidExample = new
+                {
+                    UserName = "vipuser",
+                    Email = "vip@example.com",
+                    UserType = 2, // VIP
+                    CreditCardNumber = "4111111111111111", // VIP用户必填
+                    ConfirmEmail = "vip@example.com",
+                    Tags = new[] { "tag1", "tag2" },
+                    IdCard = "110101199001011234",
+                    Phone = "13812345678"
+                },
+                InvalidExample = new
+                {
+                    UserName = "ab", // 太短
+                    Email = "invalid-email", // 格式错误
+                    UserType = 2, // VIP
+                    CreditCardNumber = "", // VIP用户必填但为空
+                    ConfirmEmail = "different@example.com", // 与email不匹配
+                    Tags = new string[0], // 空集合
+                    IdCard = "123", // 格式错误
+                    Phone = "123" // 格式错误
+                }
+            },
+            "company" => new
+            {
+                ModelName = "CompanyModel",
+                Description = "公司信息模型验证示例",
+                ValidExample = new
+                {
+                    CompanyName = "示例科技有限公司",
+                    UnifiedSocialCreditCode = "91110000123456789X",
+                    EstablishedDate = "2020-01-01",
+                    Website = "https://www.example.com",
+                    ContactEmail = "contact@example.com",
+                    ContactPhone = "13812345678",
+                    Departments = new[]
+                    {
+                        new { Name = "技术部", EmployeeCount = 10, Email = "tech@example.com" },
+                        new { Name = "市场部", EmployeeCount = 5, Email = "market@example.com" }
+                    }
+                },
+                InvalidExample = new
+                {
+                    CompanyName = "A", // 太短
+                    UnifiedSocialCreditCode = "123", // 格式错误
+                    EstablishedDate = "2030-01-01", // 未来时间
+                    Website = "not-a-url", // 格式错误
+                    ContactEmail = "invalid-email", // 格式错误
+                    ContactPhone = "123", // 格式错误
+                    Departments = new object[0] // 空集合
+                }
+            },
+            _ => new
+            {
+                Error = "未知的模型名称",
+                AvailableModels = new[] { "register", "advanceduser", "company" }
+            }
+        };
+
+        return Ok(new
+        {
+            Code = GResponseCodes.G_SUCCESS,
+            Message = "获取验证示例成功",
+            Data = examples
         });
     }
 }

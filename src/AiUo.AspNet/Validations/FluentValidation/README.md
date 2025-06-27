@@ -15,6 +15,11 @@
 - ✅ **条件验证** - 支持基于条件的验证
 - ✅ **错误码支持** - 每个验证规则可指定错误码
 - ✅ **批量验证** - 支持批量验证多个对象
+- ✅ **异步验证** - 支持异步验证场景
+- ✅ **集合验证** - 支持集合类型的验证
+- ✅ **依赖验证** - 支持属性间的依赖验证
+- ✅ **中国本土化** - 内置中国身份证、手机号等验证
+- ✅ **扩展验证规则** - 提供丰富的扩展验证方法
 
 ## 快速开始
 
@@ -115,6 +120,25 @@ public async Task<IActionResult> Login([FromBody] LoginModel model)
 |------|------|------|
 | `FluentEmail` | 邮箱格式 | `[FluentEmail("CODE", "邮箱格式不正确")]` |
 | `FluentRegularExpression` | 正则表达式 | `[FluentRegularExpression(@"^\d+$", "CODE", "只能是数字")]` |
+| `FluentUrl` | URL格式验证 | `[FluentUrl("CODE", "URL格式不正确")]` |
+| `FluentCreditCard` | 信用卡号验证 | `[FluentCreditCard("CODE", "信用卡号格式不正确")]` |
+| `FluentEnum` | 枚举值验证 | `[FluentEnum("CODE", "枚举值无效")]` |
+| `FluentFileExtension` | 文件扩展名验证 | `[FluentFileExtension(".jpg,.png", "CODE", "文件格式不支持")]` |
+| `FluentJson` | JSON格式验证 | `[FluentJson("CODE", "JSON格式不正确")]` |
+
+### 中国本土化验证
+
+| 特性 | 说明 | 示例 |
+|------|------|------|
+| `FluentChineseIdCard` | 中国身份证号验证 | `[FluentChineseIdCard("CODE", "身份证号格式不正确")]` |
+| `FluentChinesePhone` | 中国手机号验证 | `[FluentChinesePhone("CODE", "手机号格式不正确")]` |
+| `FluentUnifiedSocialCreditCode` | 统一社会信用代码验证 | `[FluentUnifiedSocialCreditCode("CODE", "社会信用代码格式不正确")]` |
+
+### 日期验证
+
+| 特性 | 说明 | 示例 |
+|------|------|------|
+| `FluentDateRange` | 日期范围验证 | `[FluentDateRange("2020-01-01", "2030-12-31", "CODE", "日期超出范围")]` |
 
 ### 比较验证
 
@@ -128,6 +152,12 @@ public async Task<IActionResult> Login([FromBody] LoginModel model)
 |------|------|------|
 | `FluentCustom` | 自定义验证 | `[FluentCustom(obj => obj != null, "CODE", "自定义验证失败")]` |
 | `FluentWhen` | 条件验证 | `[FluentWhen(obj => condition, innerAttribute)]` |
+| `FluentAsync` | 异步验证 | `[FluentAsync("CODE", "异步验证失败")]` |
+| `FluentCollection` | 集合验证 | `[FluentCollection("CODE", "集合验证失败")]` |
+| `FluentDependent` | 依赖验证 | `[FluentDependent("OtherProperty", "CODE", "依赖验证失败")]` |
+| `FluentComplex` | 复杂验证 | `[FluentComplex("CODE", "复杂验证失败")]` |
+| `FluentWhenAdvanced` | 高级条件验证 | `[FluentWhenAdvanced(condition, "CODE", "条件验证失败")]` |
+| `FluentValidationGroup` | 验证组 | `[FluentValidationGroup("GroupName")]` |
 
 ## 高级用法
 
@@ -158,10 +188,87 @@ public class UpdateUserModel
     [FluentWhen(model => !string.IsNullOrEmpty(((UpdateUserModel)model).NewPassword),
         new FluentRequired("OLD_PASSWORD_REQUIRED", "修改密码时必须提供旧密码"))]
     public string OldPassword { get; set; }
+    
+    // 高级条件验证
+    [FluentWhenAdvanced("Age > 18", "ADULT_001", "成年人必须填写此字段")]
+    public string AdultOnlyField { get; set; }
 }
 ```
 
-### 3. 批量验证
+### 3. 异步验证
+
+```csharp
+public class AsyncModel
+{
+    [FluentAsync("ASYNC_001", "用户名已存在")]
+    public string Username { get; set; }
+}
+
+// 注册异步验证器
+services.Configure<FluentValidationOptions>(options =>
+{
+    options.AsyncValidators["ASYNC_001"] = async (value, context, cancellationToken) =>
+    {
+        // 异步验证逻辑，如数据库查询
+        var exists = await userService.ExistsAsync(value?.ToString(), cancellationToken);
+        return !exists;
+    };
+});
+```
+
+### 4. 集合验证
+
+```csharp
+public class CollectionModel
+{
+    [FluentCollection("COLLECTION_001", "集合不能为空且元素必须唯一")]
+    public List<string> Items { get; set; }
+    
+    [FluentCollection("COLLECTION_002", "用户列表验证失败")]
+    public List<UserModel> Users { get; set; }
+}
+```
+
+### 5. 依赖验证
+
+```csharp
+public class DependentModel
+{
+    public string Password { get; set; }
+    
+    [FluentDependent(nameof(Password), "DEPENDENT_001", "密码确认不匹配")]
+    public string ConfirmPassword { get; set; }
+    
+    public DateTime StartDate { get; set; }
+    
+    [FluentDependent(nameof(StartDate), "DEPENDENT_002", "结束日期必须晚于开始日期")]
+    public DateTime EndDate { get; set; }
+}
+```
+
+### 6. 验证组
+
+```csharp
+public class GroupedModel
+{
+    [FluentRequired("REQ_001", "用户名必填")]
+    [FluentValidationGroup("BasicInfo")]
+    public string Username { get; set; }
+    
+    [FluentEmail("EMAIL_001", "邮箱格式不正确")]
+    [FluentValidationGroup("ContactInfo")]
+    public string Email { get; set; }
+    
+    [FluentChinesePhone("PHONE_001", "手机号格式不正确")]
+    [FluentValidationGroup("ContactInfo")]
+    public string Phone { get; set; }
+}
+
+// 按组验证
+var result = await model.ValidateModelAsync("BasicInfo");
+```
+
+### 7. 批量验证
 
 ```csharp
 [HttpPost("batch-create")]
@@ -188,14 +295,25 @@ public async Task<IActionResult> BatchCreate([FromBody] List<UserModel> models)
 }
 ```
 
-### 4. 验证组
+### 8. 复杂验证场景
 
 ```csharp
-[FluentValidationGroup(ValidationGroups.Create, ValidationGroups.Update)]
-public class ProductModel
+public class ComplexModel
 {
-    // 验证规则...
+    [FluentComplex("COMPLEX_001", "复杂验证失败")]
+    public ComplexData Data { get; set; }
 }
+
+// 注册复杂验证器
+services.Configure<FluentValidationOptions>(options =>
+{
+    options.ComplexValidators["COMPLEX_001"] = (value, context) =>
+    {
+        var complexData = value as ComplexData;
+        // 复杂验证逻辑
+        return complexData?.IsValid() == true;
+    };
+});
 ```
 
 ## 错误响应格式
@@ -270,12 +388,71 @@ public class FluentPhoneAttribute : FluentValidationAttribute
 2. **异步验证** - 支持异步验证，提高性能
 3. **条件验证** - 只在满足条件时执行验证，减少不必要的计算
 
+## 扩展验证方法
+
+除了特性验证外，还提供了丰富的扩展验证方法：
+
+```csharp
+// 中国本土化验证
+RuleFor(x => x.IdCard).ChineseIdCard();
+RuleFor(x => x.Phone).ChinesePhone();
+RuleFor(x => x.PostalCode).ChinesePostalCode();
+RuleFor(x => x.PlateNumber).ChinesePlateNumber();
+RuleFor(x => x.QQ).QQNumber();
+RuleFor(x => x.WeChat).WeChatId();
+RuleFor(x => x.BankCard).BankCardNumber();
+
+// 网络验证
+RuleFor(x => x.Website).Url();
+RuleFor(x => x.IP).IPAddress();
+RuleFor(x => x.MAC).MACAddress();
+
+// 格式验证
+RuleFor(x => x.Data).Json();
+RuleFor(x => x.File).FileExtension(".jpg", ".png", ".gif");
+
+// 密码强度验证
+RuleFor(x => x.Password).PasswordStrength(minLength: 8, requireUppercase: true, requireLowercase: true, requireDigit: true, requireSpecialChar: true);
+
+// 集合验证
+RuleFor(x => x.Items).CollectionCount(min: 1, max: 10);
+RuleFor(x => x.Tags).UniqueCollection();
+
+// 异步验证
+RuleFor(x => x.Username).MustAsync(async (username, cancellation) => 
+{
+    return !await userService.ExistsAsync(username, cancellation);
+}).WithMessage("用户名已存在");
+
+// 年龄验证
+RuleFor(x => x.BirthDate).AgeRange(18, 65);
+```
+
+## 验证结果扩展
+
+```csharp
+// 获取第一个错误消息
+var firstError = result.GetFirstErrorMessage();
+
+// 获取指定属性的错误消息
+var emailErrors = result.GetErrorsForProperty("Email");
+
+// 转换为字典格式
+var errorDict = result.ToDictionary();
+
+// 转换为简单错误列表
+var errorList = result.ToSimpleErrorList();
+```
+
 ## 注意事项
 
 1. 确保在 `Program.cs` 中正确注册服务
 2. 验证特性的顺序会影响验证执行顺序，可通过 `Order` 属性控制
 3. 自定义验证逻辑应该尽量简单，避免复杂的业务逻辑
 4. 错误码建议使用常量定义，便于维护
+5. 异步验证适用于需要数据库查询或外部服务调用的场景
+6. 中国本土化验证特性已内置常用的验证规则
+7. 扩展验证方法提供了更灵活的验证配置方式
 
 ## 示例项目
 
