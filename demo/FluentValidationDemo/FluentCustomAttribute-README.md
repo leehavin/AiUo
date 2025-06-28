@@ -142,11 +142,13 @@ public class OrderModel
 
 ## 最佳实践
 
-### 1. 验证函数设计原则
+### 1. 验证方法设计原则
 
+- **方法签名**: 必须是 `static bool MethodName(object value)` 格式
 - **空值处理**: 通常应该返回 `true`，让其他验证器（如 `FluentRequired`）处理空值
-- **类型安全**: 使用 `is` 操作符进行类型检查
-- **性能考虑**: 避免在验证函数中进行耗时操作
+- **类型安全**: 使用 `is` 操作符进行类型检查和转换
+- **性能考虑**: 避免在验证方法中进行耗时操作
+- **方法命名**: 使用 `nameof()` 操作符引用方法名，避免硬编码字符串
 
 ```csharp
 private static bool ValidateExample(object value)
@@ -167,10 +169,10 @@ private static bool ValidateExample(object value)
 
 ```csharp
 // 推荐
-[FluentCustom(ValidateUserName, "USER_NAME_SENSITIVE", "用户名不能包含敏感词汇")]
+[FluentCustom(nameof(ValidateUserName), "USER_NAME_SENSITIVE", "用户名不能包含敏感词汇")]
 
 // 不推荐
-[FluentCustom(ValidateUserName, "ERR001", "Invalid")]
+[FluentCustom(nameof(ValidateUserName), "ERR001", "Invalid")]
 ```
 
 ### 3. 组合使用
@@ -180,8 +182,14 @@ private static bool ValidateExample(object value)
 ```csharp
 [FluentRequired("FIELD_REQUIRED", "字段不能为空")]
 [FluentLength(3, 50, "FIELD_LENGTH", "字段长度必须在3-50个字符之间")]
-[FluentCustom(ValidateCustomLogic, "FIELD_CUSTOM", "字段不符合业务规则")]
+[FluentCustom(nameof(ValidateCustomLogic), "FIELD_CUSTOM", "字段不符合业务规则")]
 public string CustomField { get; set; }
+
+private static bool ValidateCustomLogic(object value)
+{
+    // 自定义业务逻辑
+    return value is string str && !str.Contains("forbidden");
+}
 ```
 
 ## API 测试示例
