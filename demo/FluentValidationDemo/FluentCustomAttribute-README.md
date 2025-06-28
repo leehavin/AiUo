@@ -89,17 +89,39 @@ public class ProductModel
 public class OrderModel
 {
     /// <summary>
+    /// 订单金额 - 复杂业务验证
+    /// </summary>
+    [FluentCustom(nameof(ValidateOrderAmount), 
+                  "ORDER_AMOUNT_BUSINESS", 
+                  "订单金额不符合业务规则")]
+    public decimal Amount { get; set; }
+
+    /// <summary>
     /// 年龄 - 必须是偶数
     /// </summary>
-    [FluentCustom(ValidateEvenAge, "AGE_MUST_BE_EVEN", "年龄必须是偶数")]
+    [FluentCustom(nameof(ValidateEvenAge), "AGE_MUST_BE_EVEN", "年龄必须是偶数")]
     public int Age { get; set; }
 
     /// <summary>
     /// 邮箱 - 不能是临时邮箱
     /// </summary>
     [FluentEmail("EMAIL_FORMAT", "邮箱格式不正确")]
-    [FluentCustom(ValidateEmailDomain, "EMAIL_TEMP_DOMAIN", "不允许使用临时邮箱域名")]
+    [FluentCustom(nameof(ValidateEmailDomain), "EMAIL_TEMP_DOMAIN", "不允许使用临时邮箱域名")]
     public string Email { get; set; }
+
+    public string CustomerType { get; set; }
+    public bool IsVip { get; set; }
+
+    private static bool ValidateOrderAmount(object value)
+    {
+        if (value is not decimal amount) return false;
+        
+        // 复杂的业务逻辑验证
+        if (amount <= 0) return false;
+        if (amount > 100000) return false; // 单笔订单不能超过10万
+        
+        return true;
+    }
 
     private static bool ValidateEvenAge(object value)
     {
