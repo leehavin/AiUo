@@ -1,16 +1,12 @@
-using System.Threading;
-using System.Threading.Tasks;
-using AiUo.AspNet.Validations.FluentValidation.Models;
-
 namespace AiUo.AspNet.Validations.FluentValidation.Services;
 
 /// <summary>
-/// Interface for validation service
+/// 验证服务接口
 /// </summary>
 public interface IValidationService
 {
     /// <summary>
-    /// Validates a model and returns the validation result
+    /// 验证模型并返回验证结果
     /// </summary>
     /// <typeparam name="T">The model type</typeparam>
     /// <param name="model">The model to validate</param>
@@ -19,7 +15,7 @@ public interface IValidationService
     Task<ValidationResult<T>> ValidateAsync<T>(T model, CancellationToken cancellationToken = default) where T : class;
     
     /// <summary>
-    /// Validates a model synchronously
+    /// 同步验证模型
     /// </summary>
     /// <typeparam name="T">The model type</typeparam>
     /// <param name="model">The model to validate</param>

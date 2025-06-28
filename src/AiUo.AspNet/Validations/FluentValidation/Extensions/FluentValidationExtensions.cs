@@ -7,12 +7,12 @@ using AiUo.AspNet.Validations.FluentValidation.Services;
 namespace AiUo.AspNet.Validations.FluentValidation.Extensions;
 
 /// <summary>
-/// FluentValidation extensions for ASP.NET Core
+/// ASP.NET Core的FluentValidation扩展
 /// </summary>
 public static class FluentValidationExtensions
 {
     /// <summary>
-    /// Adds FluentValidation with attribute-based configuration support
+    /// 添加支持基于特性配置的FluentValidation
     /// </summary>
     /// <param name="services">The service collection</param>
     /// <param name="configureOptions">Optional configuration for FluentValidation options</param>
@@ -42,7 +42,7 @@ public static class FluentValidationExtensions
     }
 
     /// <summary>
-    /// Adds FluentValidation with attribute-based configuration support and custom factory
+    /// 添加支持基于特性配置和自定义工厂的FluentValidation
     /// </summary>
     /// <param name="services">The service collection</param>
     /// <param name="configureOptions">Optional configuration for FluentValidation options</param>

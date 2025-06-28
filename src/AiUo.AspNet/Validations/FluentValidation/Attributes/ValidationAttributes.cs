@@ -46,7 +46,7 @@ public class FluentMinLengthAttribute : FluentValidationAttribute
                 .WithErrorCode(Code)
                 .WithMessage(ErrorMessage ?? $"{propertyName}最小长度为{MinLength}") as IRuleBuilderOptions<T, TProperty>;
         }
-        
+
         throw new InvalidOperationException($"FluentMinLengthAttribute只能应用于string类型的属性");
     }
 }
@@ -75,7 +75,7 @@ public class FluentMaxLengthAttribute : FluentValidationAttribute
                 .WithErrorCode(Code)
                 .WithMessage(ErrorMessage ?? $"{propertyName}最大长度为{MaxLength}") as IRuleBuilderOptions<T, TProperty>;
         }
-        
+
         throw new InvalidOperationException($"FluentMaxLengthAttribute只能应用于string类型的属性");
     }
 }
@@ -106,7 +106,7 @@ public class FluentLengthAttribute : FluentValidationAttribute
                 .WithErrorCode(Code)
                 .WithMessage(ErrorMessage ?? $"{propertyName}长度必须在{MinLength}到{MaxLength}之间") as IRuleBuilderOptions<T, TProperty>;
         }
-        
+
         throw new InvalidOperationException($"FluentLengthAttribute只能应用于string类型的属性");
     }
 }
@@ -139,18 +139,18 @@ public class FluentRangeAttribute : FluentValidationAttribute
     {
         if (typeof(TProperty).IsNumericType())
         {
-            return ruleBuilder.Must(value => 
+            return ruleBuilder.Must(value =>
             {
                 if (value == null) return true;
                 var comparable = value as IComparable;
-                return comparable != null && 
-                       comparable.CompareTo(Minimum) >= 0 && 
+                return comparable != null &&
+                       comparable.CompareTo(Minimum) >= 0 &&
                        comparable.CompareTo(Maximum) <= 0;
             })
             .WithErrorCode(Code)
             .WithMessage(ErrorMessage ?? $"{propertyName}必须在{Minimum}到{Maximum}之间");
         }
-        
+
         throw new InvalidOperationException($"FluentRangeAttribute只能应用于数值类型的属性");
     }
 }
@@ -181,7 +181,7 @@ public class FluentRegularExpressionAttribute : FluentValidationAttribute
                 .WithErrorCode(Code)
                 .WithMessage(ErrorMessage ?? $"{propertyName}格式不正确") as IRuleBuilderOptions<T, TProperty>;
         }
-        
+
         throw new InvalidOperationException($"FluentRegularExpressionAttribute只能应用于string类型的属性");
     }
 }
@@ -205,7 +205,7 @@ public class FluentEmailAttribute : FluentValidationAttribute
                 .WithErrorCode(Code)
                 .WithMessage(ErrorMessage ?? $"{propertyName}邮箱格式不正确") as IRuleBuilderOptions<T, TProperty>;
         }
-        
+
         throw new InvalidOperationException($"FluentEmailAttribute只能应用于string类型的属性");
     }
 }
@@ -231,7 +231,7 @@ public class FluentCompareAttribute : FluentValidationAttribute
         {
             var otherPropertyInfo = typeof(T).GetProperty(OtherProperty);
             if (otherPropertyInfo == null) return false;
-            
+
             var otherValue = otherPropertyInfo.GetValue(model);
             return Equals(value, otherValue);
         })
@@ -278,16 +278,16 @@ public class FluentUrlAttribute : FluentValidationAttribute
         if (typeof(TProperty) == typeof(string))
         {
             var stringRuleBuilder = ruleBuilder as IRuleBuilder<T, string>;
-            return stringRuleBuilder.Must(url => 
+            return stringRuleBuilder.Must(url =>
             {
                 if (string.IsNullOrEmpty(url)) return true;
-                return Uri.TryCreate(url, UriKind.Absolute, out var result) && 
+                return Uri.TryCreate(url, UriKind.Absolute, out var result) &&
                        (result.Scheme == Uri.UriSchemeHttp || result.Scheme == Uri.UriSchemeHttps);
             })
             .WithErrorCode(Code)
             .WithMessage(ErrorMessage ?? $"{propertyName}URL格式不正确") as IRuleBuilderOptions<T, TProperty>;
         }
-        
+
         throw new InvalidOperationException($"FluentUrlAttribute只能应用于string类型的属性");
     }
 }
@@ -311,7 +311,7 @@ public class FluentCreditCardAttribute : FluentValidationAttribute
                 .WithErrorCode(Code)
                 .WithMessage(ErrorMessage ?? $"{propertyName}信用卡号格式不正确") as IRuleBuilderOptions<T, TProperty>;
         }
-        
+
         throw new InvalidOperationException($"FluentCreditCardAttribute只能应用于string类型的属性");
     }
 }
@@ -371,18 +371,18 @@ public class FluentDateRangeAttribute : FluentValidationAttribute
                 if (value == null) return true;
                 var dateValue = (DateTime)(object)value;
                 var now = DateTime.Now;
-                
+
                 if (!AllowFuture && dateValue > now) return false;
                 if (!AllowPast && dateValue < now) return false;
                 if (MinDate.HasValue && dateValue < MinDate.Value) return false;
                 if (MaxDate.HasValue && dateValue > MaxDate.Value) return false;
-                
+
                 return true;
             })
             .WithErrorCode(Code)
             .WithMessage(ErrorMessage ?? $"{propertyName}日期不在允许的范围内");
         }
-        
+
         throw new InvalidOperationException($"FluentDateRangeAttribute只能应用于DateTime类型的属性");
     }
 }
@@ -418,7 +418,7 @@ public class FluentFileExtensionAttribute : FluentValidationAttribute
             .WithErrorCode(Code)
             .WithMessage(ErrorMessage ?? $"{propertyName}文件扩展名不被允许，允许的扩展名：{string.Join(", ", AllowedExtensions)}") as IRuleBuilderOptions<T, TProperty>;
         }
-        
+
         throw new InvalidOperationException($"FluentFileExtensionAttribute只能应用于string类型的属性");
     }
 }
@@ -442,7 +442,7 @@ public class FluentChineseIdCardAttribute : FluentValidationAttribute
                 .WithErrorCode(Code)
                 .WithMessage(ErrorMessage ?? $"{propertyName}身份证号格式不正确") as IRuleBuilderOptions<T, TProperty>;
         }
-        
+
         throw new InvalidOperationException($"FluentChineseIdCardAttribute只能应用于string类型的属性");
     }
 
@@ -450,23 +450,23 @@ public class FluentChineseIdCardAttribute : FluentValidationAttribute
     {
         if (string.IsNullOrEmpty(idCard)) return true;
         if (idCard.Length != 18) return false;
-        
+
         // 验证前17位是否为数字
         for (int i = 0; i < 17; i++)
         {
             if (!char.IsDigit(idCard[i])) return false;
         }
-        
+
         // 验证最后一位校验码
         var weights = new int[] { 7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2 };
         var checkCodes = new char[] { '1', '0', 'X', '9', '8', '7', '6', '5', '4', '3', '2' };
-        
+
         int sum = 0;
         for (int i = 0; i < 17; i++)
         {
             sum += (idCard[i] - '0') * weights[i];
         }
-        
+
         var checkCode = checkCodes[sum % 11];
         return idCard[17] == checkCode;
     }
@@ -491,7 +491,7 @@ public class FluentChinesePhoneAttribute : FluentValidationAttribute
                 .WithErrorCode(Code)
                 .WithMessage(ErrorMessage ?? $"{propertyName}手机号格式不正确") as IRuleBuilderOptions<T, TProperty>;
         }
-        
+
         throw new InvalidOperationException($"FluentChinesePhoneAttribute只能应用于string类型的属性");
     }
 }
@@ -527,7 +527,7 @@ public class FluentJsonAttribute : FluentValidationAttribute
             .WithErrorCode(Code)
             .WithMessage(ErrorMessage ?? $"{propertyName}JSON格式不正确") as IRuleBuilderOptions<T, TProperty>;
         }
-        
+
         throw new InvalidOperationException($"FluentJsonAttribute只能应用于string类型的属性");
     }
 }
@@ -551,7 +551,7 @@ public class FluentUnifiedSocialCreditCodeAttribute : FluentValidationAttribute
                 .WithErrorCode(Code)
                 .WithMessage(ErrorMessage ?? $"{propertyName}统一社会信用代码格式不正确") as IRuleBuilderOptions<T, TProperty>;
         }
-        
+
         throw new InvalidOperationException($"FluentUnifiedSocialCreditCodeAttribute只能应用于string类型的属性");
     }
 }
@@ -581,9 +581,9 @@ public class FluentDependentAttribute : FluentValidationAttribute
         {
             var dependentPropertyInfo = typeof(T).GetProperty(DependentProperty);
             if (dependentPropertyInfo == null) return true;
-            
+
             var dependentPropertyValue = dependentPropertyInfo.GetValue(model);
-            
+
             // 检查依赖条件
             bool dependentConditionMet = ComparisonType switch
             {
@@ -591,10 +591,10 @@ public class FluentDependentAttribute : FluentValidationAttribute
                 ComparisonType.NotEqual => !Equals(dependentPropertyValue, DependentValue),
                 _ => false
             };
-            
+
             // 如果依赖条件不满足，则跳过验证
             if (!dependentConditionMet) return true;
-            
+
             // 如果依赖条件满足，则当前属性不能为空
             return value != null && !value.Equals(default(TProperty));
         })
@@ -626,12 +626,12 @@ public class FluentWhenAdvancedAttribute : FluentValidationAttribute
         {
             var dependentPropertyInfo = typeof(T).GetProperty(DependentProperty);
             if (dependentPropertyInfo == null) return true;
-            
+
             var dependentPropertyValue = dependentPropertyInfo.GetValue(model);
-            
+
             // 如果依赖条件不满足，则跳过验证
             if (!Equals(dependentPropertyValue, DependentValue)) return true;
-            
+
             // 如果依赖条件满足，则当前属性不能为空
             return value != null && !value.Equals(default(TProperty));
         })
@@ -666,16 +666,16 @@ public class FluentCollectionAttribute : FluentValidationAttribute
             return ruleBuilder.Must(collection =>
             {
                 if (collection == null) return AllowEmpty;
-                
+
                 var enumerable = collection as System.Collections.IEnumerable;
                 var count = enumerable?.Cast<object>().Count() ?? 0;
-                
+
                 return count >= MinCount && count <= MaxCount;
             })
             .WithErrorCode(Code)
             .WithMessage(ErrorMessage ?? $"{propertyName}集合元素数量必须在{MinCount}-{MaxCount}之间");
         }
-        
+
         throw new InvalidOperationException($"FluentCollectionAttribute只能应用于集合类型的属性");
     }
 }

@@ -8,7 +8,7 @@ using AiUo.AspNet.Validations.FluentValidation.Services;
 namespace AiUo.AspNet.Validations.FluentValidation.Extensions;
 
 /// <summary>
-/// Startup filter to validate FluentValidation configuration on application startup
+/// 启动过滤器，用于在应用程序启动时验证FluentValidation配置
 /// </summary>
 internal sealed class FluentValidationStartupFilter : IStartupFilter
 {

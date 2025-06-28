@@ -11,7 +11,7 @@ using AiUo.AspNet.Validations.FluentValidation.Validators;
 namespace AiUo.AspNet.Validations.FluentValidation.Services;
 
 /// <summary>
-/// Implementation of attribute-based validator factory
+/// 基于特性的验证器工厂实现
 /// </summary>
 public sealed class AttributeBasedValidatorFactory : IAttributeBasedValidatorFactory, IDisposable
 {

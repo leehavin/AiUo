@@ -1,27 +1,27 @@
 namespace AiUo.AspNet.Validations.FluentValidation.Models;
 
 /// <summary>
-/// Predefined validation groups for common scenarios
+/// 常见场景的预定义验证组
 /// </summary>
 public static class ValidationGroups
 {
     /// <summary>
-    /// Validation group for create operations
+    /// 创建操作的验证组
     /// </summary>
     public const string Create = "Create";
     
     /// <summary>
-    /// Validation group for update operations
+    /// 更新操作的验证组
     /// </summary>
     public const string Update = "Update";
     
     /// <summary>
-    /// Validation group for delete operations
+    /// 删除操作的验证组
     /// </summary>
     public const string Delete = "Delete";
     
     /// <summary>
-    /// Validation group for query operations
+    /// 查询操作的验证组
     /// </summary>
     public const string Query = "Query";
 }

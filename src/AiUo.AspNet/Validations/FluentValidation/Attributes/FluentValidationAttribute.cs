@@ -12,28 +12,28 @@ using System.Reflection;
 namespace AiUo.AspNet.Validations.FluentValidation.Attributes;
 
 /// <summary>
-/// Base class for FluentValidation attributes
+/// FluentValidation特性的基类
 /// </summary>
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Property, AllowMultiple = true)]
 public abstract class FluentValidationAttribute : Attribute
 {
     /// <summary>
-    /// Gets or sets the error code
+    /// 获取或设置错误代码
     /// </summary>
     public string Code { get; set; }
 
     /// <summary>
-    /// Gets or sets the error message
+    /// 获取或设置错误消息
     /// </summary>
     public string ErrorMessage { get; set; }
 
     /// <summary>
-    /// Gets or sets the validation order
+    /// 获取或设置验证顺序
     /// </summary>
     public int Order { get; set; }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="FluentValidationAttribute"/> class
+    /// 初始化<see cref="FluentValidationAttribute"/>类的新实例
     /// </summary>
     /// <param name="code">The error code</param>
     /// <param name="message">The error message</param>
@@ -44,7 +44,7 @@ public abstract class FluentValidationAttribute : Attribute
     }
 
     /// <summary>
-    /// Applies the validation rule to the rule builder
+    /// 将验证规则应用到规则构建器
     /// </summary>
     /// <typeparam name="T">The model type</typeparam>
     /// <typeparam name="TProperty">The property type</typeparam>
@@ -56,7 +56,7 @@ public abstract class FluentValidationAttribute : Attribute
 }
 
 /// <summary>
-/// Action filter for automatic FluentValidation model validation
+/// 自动FluentValidation模型验证的操作过滤器
 /// </summary>
 public sealed class FluentValidationActionFilter : IActionFilter
 {
@@ -64,7 +64,7 @@ public sealed class FluentValidationActionFilter : IActionFilter
     private readonly IAttributeBasedValidatorFactory _validatorFactory;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="FluentValidationActionFilter"/> class
+    /// 初始化<see cref="FluentValidationActionFilter"/>类的新实例
     /// </summary>
     /// <param name="logger">The logger</param>
     /// <param name="validatorFactory">The validator factory</param>
@@ -139,7 +139,7 @@ public sealed class FluentValidationActionFilter : IActionFilter
     }
 
     /// <summary>
-    /// Validates the specified model using attribute-based validation
+    /// 使用基于特性的验证来验证指定的模型
     /// </summary>
     /// <param name="model">The model to validate</param>
     /// <returns>The validation result</returns>
@@ -152,19 +152,19 @@ public sealed class FluentValidationActionFilter : IActionFilter
 }
 
 /// <summary>
-/// Interface for creating attribute-based validators
+/// 创建基于特性的验证器的接口
 /// </summary>
 public interface IAttributeBasedValidatorFactory
 {
     /// <summary>
-    /// Gets a validator for the specified model type
+    /// 获取指定模型类型的验证器
     /// </summary>
     /// <param name="modelType">The model type</param>
     /// <returns>The validator instance</returns>
     IValidator GetValidator(Type modelType);
 
     /// <summary>
-    /// Gets a validator for the specified model type
+    /// 获取指定模型类型的验证器
     /// </summary>
     /// <typeparam name="T">The model type</typeparam>
     /// <returns>The validator instance</returns>
@@ -172,7 +172,7 @@ public interface IAttributeBasedValidatorFactory
 }
 
 /// <summary>
-/// Default implementation of the attribute-based validator factory
+/// 基于特性的验证器工厂的默认实现
 /// </summary>
 internal sealed class DefaultAttributeBasedValidatorFactory : IAttributeBasedValidatorFactory
 {
@@ -181,7 +181,7 @@ internal sealed class DefaultAttributeBasedValidatorFactory : IAttributeBasedVal
     private readonly ILogger<DefaultAttributeBasedValidatorFactory> _logger;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="DefaultAttributeBasedValidatorFactory"/> class
+    /// 初始化<see cref="DefaultAttributeBasedValidatorFactory"/>类的新实例
     /// </summary>
     /// <param name="serviceProvider">The service provider</param>
     /// <param name="logger">The logger</param>
@@ -211,7 +211,7 @@ internal sealed class DefaultAttributeBasedValidatorFactory : IAttributeBasedVal
     }
 
     /// <summary>
-    /// Creates a validator instance for the specified model type
+    /// 为指定的模型类型创建验证器实例
     /// </summary>
     /// <param name="modelType">The model type</param>
     /// <returns>The validator instance</returns>
@@ -241,7 +241,7 @@ internal sealed class DefaultAttributeBasedValidatorFactory : IAttributeBasedVal
 }
 
 /// <summary>
-/// Attribute-based validator that dynamically creates validation rules from attributes
+/// 基于特性的验证器，动态从特性创建验证规则
 /// </summary>
 /// <typeparam name="T">The model type to validate</typeparam>
 public sealed class AttributeBasedValidator<T> : AbstractValidator<T>
@@ -250,7 +250,7 @@ public sealed class AttributeBasedValidator<T> : AbstractValidator<T>
     private readonly ILogger<AttributeBasedValidator<T>>? _logger;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="AttributeBasedValidator{T}"/> class
+    /// 初始化<see cref="AttributeBasedValidator{T}"/>类的新实例
     /// </summary>
     public AttributeBasedValidator()
     {
@@ -258,7 +258,7 @@ public sealed class AttributeBasedValidator<T> : AbstractValidator<T>
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="AttributeBasedValidator{T}"/> class
+    /// 初始化<see cref="AttributeBasedValidator{T}"/>类的新实例
     /// </summary>
     /// <param name="serviceProvider">The service provider for dependency injection</param>
     public AttributeBasedValidator(IServiceProvider serviceProvider)
@@ -269,7 +269,7 @@ public sealed class AttributeBasedValidator<T> : AbstractValidator<T>
     }
 
     /// <summary>
-    /// Configures validation rules based on attributes
+    /// 基于特性配置验证规则
     /// </summary>
     private void ConfigureValidationRules()
     {
@@ -292,7 +292,7 @@ public sealed class AttributeBasedValidator<T> : AbstractValidator<T>
     }
 
     /// <summary>
-    /// Configures class-level validation attributes
+    /// 配置类级别的验证特性
     /// </summary>
     /// <param name="modelType">The model type</param>
     private void ConfigureClassLevelValidation(Type modelType)
@@ -315,7 +315,7 @@ public sealed class AttributeBasedValidator<T> : AbstractValidator<T>
     }
 
     /// <summary>
-    /// Configures property-level validation attributes
+    /// 配置属性级别的验证特性
     /// </summary>
     /// <param name="modelType">The model type</param>
     private void ConfigurePropertyLevelValidation(Type modelType)
@@ -342,7 +342,7 @@ public sealed class AttributeBasedValidator<T> : AbstractValidator<T>
     }
 
     /// <summary>
-    /// Configures validation for a specific property
+    /// 为特定属性配置验证
     /// </summary>
     /// <param name="property">The property info</param>
     /// <param name="attributes">The validation attributes</param>
@@ -387,7 +387,7 @@ public sealed class AttributeBasedValidator<T> : AbstractValidator<T>
     }
 
     /// <summary>
-    /// Applies a validation attribute to a rule builder
+    /// 将验证特性应用到规则构建器
     /// </summary>
     /// <param name="attribute">The validation attribute</param>
     /// <param name="ruleBuilder">The rule builder</param>

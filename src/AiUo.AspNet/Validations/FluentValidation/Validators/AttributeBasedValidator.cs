@@ -11,7 +11,7 @@ using AiUo.AspNet.Validations.FluentValidation.Services;
 namespace AiUo.AspNet.Validations.FluentValidation.Validators;
 
 /// <summary>
-/// Attribute-based validator that automatically configures validation rules from attributes
+/// 基于特性的验证器，自动从特性配置验证规则
 /// </summary>
 /// <typeparam name="T">The type being validated</typeparam>
 public sealed class AttributeBasedValidator<T> : AbstractValidator<T>
@@ -21,7 +21,7 @@ public sealed class AttributeBasedValidator<T> : AbstractValidator<T>
     private readonly FluentValidationOptions _options;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="AttributeBasedValidator{T}"/> class
+    /// 初始化<see cref="AttributeBasedValidator{T}"/>类的新实例
     /// </summary>
     /// <param name="options">The validation options</param>
     /// <param name="serviceProvider">Optional service provider for dependency injection</param>
@@ -40,14 +40,14 @@ public sealed class AttributeBasedValidator<T> : AbstractValidator<T>
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="AttributeBasedValidator{T}"/> class with default options
+    /// 使用默认选项初始化<see cref="AttributeBasedValidator{T}"/>类的新实例
     /// </summary>
     public AttributeBasedValidator() : this(new FluentValidationOptions())
     {
     }
 
     /// <summary>
-    /// Configures validation rules based on attributes
+    /// 基于特性配置验证规则
     /// </summary>
     private void ConfigureValidationRules()
     {
@@ -70,7 +70,7 @@ public sealed class AttributeBasedValidator<T> : AbstractValidator<T>
     }
 
     /// <summary>
-    /// Configures class-level validation attributes
+    /// 配置类级别的验证特性
     /// </summary>
     /// <param name="modelType">The model type</param>
     private void ConfigureClassLevelValidation(Type modelType)
@@ -93,7 +93,7 @@ public sealed class AttributeBasedValidator<T> : AbstractValidator<T>
     }
 
     /// <summary>
-    /// Configures property-level validation attributes
+    /// 配置属性级别的验证特性
     /// </summary>
     /// <param name="modelType">The model type</param>
     private void ConfigurePropertyLevelValidation(Type modelType)
@@ -120,7 +120,7 @@ public sealed class AttributeBasedValidator<T> : AbstractValidator<T>
     }
 
     /// <summary>
-    /// Configures validation for a specific property
+    /// 为特定属性配置验证
     /// </summary>
     /// <param name="property">The property info</param>
     /// <param name="attributes">The validation attributes</param>
@@ -165,7 +165,7 @@ public sealed class AttributeBasedValidator<T> : AbstractValidator<T>
     }
 
     /// <summary>
-    /// Applies a validation attribute to a rule builder
+    /// 将验证特性应用到规则构建器
     /// </summary>
     /// <param name="attribute">The validation attribute</param>
     /// <param name="ruleBuilder">The rule builder</param>

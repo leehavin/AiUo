@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Http;
 namespace AiUo.AspNet.Validations.FluentValidation.Extensions;
 
 /// <summary>
-/// Model validation extension methods
+/// 模型验证扩展方法
 /// </summary>
 public static class ModelValidationExtensions
 {
@@ -15,9 +15,9 @@ public static class ModelValidationExtensions
     private static IHttpContextAccessor _httpContextAccessor;
 
     /// <summary>
-    /// Configure the service provider for model validation
+    /// 配置模型验证的服务提供者
     /// </summary>
-    /// <param name="serviceProvider">The service provider</param>
+    /// <param name="serviceProvider">服务提供者</param>
     public static void ConfigureServiceProvider(IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
@@ -25,12 +25,12 @@ public static class ModelValidationExtensions
     }
 
     /// <summary>
-    /// Validates a model asynchronously using FluentValidation
+    /// 使用FluentValidation异步验证模型
     /// </summary>
-    /// <typeparam name="T">The type of the model to validate</typeparam>
-    /// <param name="model">The model instance to validate</param>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>Validation result</returns>
+    /// <typeparam name="T">要验证的模型类型</typeparam>
+    /// <param name="model">要验证的模型</param>
+    /// <param name="cancellationToken">取消令牌</param>
+    /// <returns>验证结果</returns>
     public static async Task<ValidationResult<T>> ValidateModelAsync<T>(
         this T model, 
         CancellationToken cancellationToken = default) where T : class

@@ -1,16 +1,10 @@
-using System;
-using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
 using FluentValidation;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using AiUo.AspNet.Validations.FluentValidation.Models;
+using System.Diagnostics;
 
 namespace AiUo.AspNet.Validations.FluentValidation.Services;
 
 /// <summary>
-/// Implementation of validation service
+/// 验证服务实现
 /// </summary>
 public sealed class ValidationService : IValidationService
 {
