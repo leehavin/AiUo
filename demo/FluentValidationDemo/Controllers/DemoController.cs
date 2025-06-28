@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using AiUo.AspNet.Validations;
+using AiUo.AspNet.Validations.FluentValidation.Services;
+using AiUo.AspNet.Validations.FluentValidation.Extensions;
 using FluentValidationDemo.Models;
 using AiUo.Net;
 
@@ -12,6 +14,14 @@ namespace FluentValidationDemo.Controllers;
 [Route("api/[controller]")]
 public class DemoController : ControllerBase
 {
+    private readonly IValidationService _validationService;
+    private readonly ILogger<DemoController> _logger;
+
+    public DemoController(IValidationService validationService, ILogger<DemoController> logger)
+    {
+        _validationService = validationService;
+        _logger = logger;
+    }
     /// <summary>
     /// 用户注册 - 自动验证演示
     /// </summary>
@@ -48,16 +58,17 @@ public class DemoController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginModel model)
     {
-        // 手动验证演示
-        var validationResult = await model.ValidateModelAsync();
+        // 手动验证演示 - 使用新的验证服务
+        var validationResult = await _validationService.ValidateAsync(model);
         if (!validationResult.IsValid)
         {
+            _logger.LogWarning("Login validation failed for user: {LoginName}", model.LoginName);
             return BadRequest(new
             {
                 Code = GResponseCodes.G_BAD_REQUEST,
                 Message = "验证失败",
-                Errors = validationResult.ToDictionary(),
-                FirstError = validationResult.FirstErrorMessage
+                Errors = validationResult.Errors.ToDictionary(e => e.PropertyName, e => e.ErrorMessage),
+                FirstError = validationResult.Errors.FirstOrDefault()?.ErrorMessage
             });
         }
 
@@ -539,12 +550,156 @@ public class DemoController : ControllerBase
                 AvailableModels = new[] { "register", "advanceduser", "company" }
             }
         };
+        
+        return Ok(examples);
+    }
 
+    /// <summary>
+    /// 验证服务性能测试 - 展示新验证服务的性能监控功能
+    /// </summary>
+    /// <param name="model">高级用户模型</param>
+    /// <returns></returns>
+    [HttpPost("performance-test")]
+    public async Task<IActionResult> PerformanceTest([FromBody] AdvancedUserModel model)
+    {
+        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+        
+        try
+        {
+            // 使用新的验证服务进行验证
+            var validationResult = await _validationService.ValidateAsync(model);
+            
+            stopwatch.Stop();
+            
+            _logger.LogInformation("Validation completed in {ElapsedMs}ms", stopwatch.ElapsedMilliseconds);
+            
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(new
+                {
+                    Code = GResponseCodes.G_BAD_REQUEST,
+                    Message = "验证失败",
+                    ValidationTime = $"{stopwatch.ElapsedMilliseconds}ms",
+                    Errors = validationResult.Errors.Select(e => new
+                    {
+                        Property = e.PropertyName,
+                        Message = e.ErrorMessage,
+                        Code = e.ErrorCode,
+                        AttemptedValue = e.AttemptedValue
+                    }),
+                    ErrorCount = validationResult.Errors.Count
+                });
+            }
+            
+            return Ok(new
+            {
+                Code = GResponseCodes.G_SUCCESS,
+                Message = "验证成功",
+                ValidationTime = $"{stopwatch.ElapsedMilliseconds}ms",
+                Data = new
+                {
+                    UserName = model.UserName,
+                    Email = model.Email,
+                    UserType = model.UserType.ToString(),
+                    TagCount = model.Tags?.Count ?? 0,
+                    ProcessedAt = DateTime.Now
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            stopwatch.Stop();
+            _logger.LogError(ex, "Validation failed with exception after {ElapsedMs}ms", stopwatch.ElapsedMilliseconds);
+            
+            return StatusCode(500, new
+            {
+                Code = GResponseCodes.G_INTERNAL_SERVER_ERROR,
+                Message = "验证过程中发生错误",
+                ValidationTime = $"{stopwatch.ElapsedMilliseconds}ms",
+                Error = ex.Message
+            });
+        }
+    }
+
+    /// <summary>
+    /// 批量验证演示 - 展示验证服务的批量处理能力
+    /// </summary>
+    /// <param name="models">用户模型列表</param>
+    /// <returns></returns>
+    [HttpPost("batch-validation")]
+    public async Task<IActionResult> BatchValidation([FromBody] List<RegisterModel> models)
+    {
+        if (models == null || !models.Any())
+        {
+            return BadRequest(new
+            {
+                Code = GResponseCodes.G_BAD_REQUEST,
+                Message = "请提供至少一个用户模型"
+            });
+        }
+        
+        var results = new List<object>();
+        var totalStopwatch = System.Diagnostics.Stopwatch.StartNew();
+        
+        for (int i = 0; i < models.Count; i++)
+        {
+            var itemStopwatch = System.Diagnostics.Stopwatch.StartNew();
+            
+            try
+            {
+                var validationResult = await _validationService.ValidateAsync(models[i]);
+                itemStopwatch.Stop();
+                
+                results.Add(new
+                {
+                    Index = i,
+                    IsValid = validationResult.IsValid,
+                    ValidationTime = $"{itemStopwatch.ElapsedMilliseconds}ms",
+                    UserName = models[i].UserName,
+                    Email = models[i].Email,
+                    Errors = validationResult.IsValid ? null : validationResult.Errors.Select(e => new
+                    {
+                        Property = e.PropertyName,
+                        Message = e.ErrorMessage,
+                        Code = e.ErrorCode
+                    })
+                });
+            }
+            catch (Exception ex)
+            {
+                itemStopwatch.Stop();
+                _logger.LogError(ex, "Batch validation failed for item {Index}", i);
+                
+                results.Add(new
+                {
+                    Index = i,
+                    IsValid = false,
+                    ValidationTime = $"{itemStopwatch.ElapsedMilliseconds}ms",
+                    UserName = models[i].UserName,
+                    Email = models[i].Email,
+                    Error = ex.Message
+                });
+            }
+        }
+        
+        totalStopwatch.Stop();
+        
+        var validCount = results.Count(r => (bool)((dynamic)r).IsValid);
+        var invalidCount = results.Count - validCount;
+        
         return Ok(new
         {
             Code = GResponseCodes.G_SUCCESS,
-            Message = "获取验证示例成功",
-            Data = examples
+            Message = "批量验证完成",
+            Summary = new
+            {
+                TotalCount = models.Count,
+                ValidCount = validCount,
+                InvalidCount = invalidCount,
+                TotalTime = $"{totalStopwatch.ElapsedMilliseconds}ms",
+                AverageTime = $"{totalStopwatch.ElapsedMilliseconds / models.Count}ms"
+            },
+            Results = results
         });
     }
 }

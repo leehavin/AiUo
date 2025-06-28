@@ -5,14 +5,16 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentValidation;
+using FluentValidation.Results;
 
-namespace AiUo.AspNet.Validations.FluentValidation
+namespace AiUo.AspNet.Validations.FluentValidation.Rules;
+
+/// <summary>
+/// FluentValidation 规则扩展方法
+/// </summary>
+public static class FluentValidationRuleExtensions
 {
-    /// <summary>
-    /// FluentValidation 规则扩展方法
-    /// </summary>
-    public static class FluentValidationRuleExtensions
-    {
         /// <summary>
         /// 验证中国身份证号
         /// </summary>
@@ -302,7 +304,7 @@ namespace AiUo.AspNet.Validations.FluentValidation
         /// <summary>
         /// 获取第一个错误消息
         /// </summary>
-        public static string GetFirstErrorMessage(this FluentValidationResult result)
+        public static string GetFirstErrorMessage(this global::FluentValidation.Results.ValidationResult result)
         {
             return result.Errors?.FirstOrDefault()?.ErrorMessage;
         }
@@ -310,7 +312,7 @@ namespace AiUo.AspNet.Validations.FluentValidation
         /// <summary>
         /// 获取指定属性的错误消息
         /// </summary>
-        public static IEnumerable<string> GetErrorMessages(this FluentValidationResult result, string propertyName)
+        public static IEnumerable<string> GetErrorMessages(this global::FluentValidation.Results.ValidationResult result, string propertyName)
         {
             return result.Errors?
                 .Where(e => e.PropertyName.Equals(propertyName, StringComparison.OrdinalIgnoreCase))
@@ -320,7 +322,7 @@ namespace AiUo.AspNet.Validations.FluentValidation
         /// <summary>
         /// 转换为字典格式
         /// </summary>
-        public static Dictionary<string, List<string>> ToDictionary(this FluentValidationResult result)
+        public static Dictionary<string, List<string>> ToDictionary(this global::FluentValidation.Results.ValidationResult result)
         {
             var dict = new Dictionary<string, List<string>>();
             if (result.Errors != null)
@@ -340,9 +342,8 @@ namespace AiUo.AspNet.Validations.FluentValidation
         /// <summary>
         /// 转换为简单的错误消息列表
         /// </summary>
-        public static List<string> ToErrorMessages(this FluentValidationResult result)
+        public static List<string> ToErrorMessages(this global::FluentValidation.Results.ValidationResult result)
         {
             return result.Errors?.Select(e => e.ErrorMessage).ToList() ?? new List<string>();
         }
-    }
 }

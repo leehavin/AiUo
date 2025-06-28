@@ -1,5 +1,6 @@
 using AiUo.AspNet.Validations;
-using AiUo.AspNet.Validations.FluentValidation;
+using AiUo.AspNet.Validations.FluentValidation.Attributes;
+using AiUo.AspNet.Validations.FluentValidation.Models;
 using System.ComponentModel.DataAnnotations;
 
 namespace FluentValidationDemo.Models;

@@ -1,12 +1,23 @@
 using AiUo.AspNet.Validations;
+using AiUo.AspNet.Validations.FluentValidation.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
+builder.Services.AddHttpContextAccessor();
 
 // 添加基于特性的FluentValidation支持
-builder.Services.AddAttributeBasedFluentValidation();
+builder.Services.AddFluentValidationWithAttributes(options =>
+{
+    options.DefaultErrorCode = "VALIDATION_ERROR";
+    options.StopOnFirstFailure = false;
+    options.MaxErrors = 100;
+    
+    // 启用性能监控
+    options.EnablePerformanceMonitoring = true;
+    options.PerformanceThresholdMs = 500; // 500ms阈值
+});
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -33,5 +44,8 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Configure model validation extensions
+ModelValidationExtensions.ConfigureServiceProvider(app.Services);
 
 app.Run();

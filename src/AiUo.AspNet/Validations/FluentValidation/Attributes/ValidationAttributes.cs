@@ -1,7 +1,8 @@
 using FluentValidation;
 using System.Text.RegularExpressions;
+using AiUo.AspNet.Validations.FluentValidation.Models;
 
-namespace AiUo.AspNet.Validations;
+namespace AiUo.AspNet.Validations.FluentValidation.Attributes;
 
 /// <summary>
 /// 必填验证特性
@@ -552,6 +553,130 @@ public class FluentUnifiedSocialCreditCodeAttribute : FluentValidationAttribute
         }
         
         throw new InvalidOperationException($"FluentUnifiedSocialCreditCodeAttribute只能应用于string类型的属性");
+    }
+}
+
+/// <summary>
+/// 依赖验证特性
+/// </summary>
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Property, AllowMultiple = true)]
+public class FluentDependentAttribute : FluentValidationAttribute
+{
+    public string DependentProperty { get; }
+    public object DependentValue { get; }
+    public ComparisonType ComparisonType { get; }
+
+    public FluentDependentAttribute(string dependentProperty, object dependentValue, ComparisonType comparisonType, string code = null, string message = null)
+        : base(code, message)
+    {
+        DependentProperty = dependentProperty;
+        DependentValue = dependentValue;
+        ComparisonType = comparisonType;
+    }
+
+    public override IRuleBuilderOptions<T, TProperty> ApplyRule<T, TProperty>(
+        IRuleBuilder<T, TProperty> ruleBuilder, string propertyName)
+    {
+        return ruleBuilder.Must((model, value) =>
+        {
+            var dependentPropertyInfo = typeof(T).GetProperty(DependentProperty);
+            if (dependentPropertyInfo == null) return true;
+            
+            var dependentPropertyValue = dependentPropertyInfo.GetValue(model);
+            
+            // 检查依赖条件
+            bool dependentConditionMet = ComparisonType switch
+            {
+                ComparisonType.Equal => Equals(dependentPropertyValue, DependentValue),
+                ComparisonType.NotEqual => !Equals(dependentPropertyValue, DependentValue),
+                _ => false
+            };
+            
+            // 如果依赖条件不满足，则跳过验证
+            if (!dependentConditionMet) return true;
+            
+            // 如果依赖条件满足，则当前属性不能为空
+            return value != null && !value.Equals(default(TProperty));
+        })
+        .WithErrorCode(Code)
+        .WithMessage(ErrorMessage ?? $"{propertyName}是必需的");
+    }
+}
+
+/// <summary>
+/// 高级条件验证特性
+/// </summary>
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Property, AllowMultiple = true)]
+public class FluentWhenAdvancedAttribute : FluentValidationAttribute
+{
+    public string DependentProperty { get; }
+    public object DependentValue { get; }
+
+    public FluentWhenAdvancedAttribute(string dependentProperty, object dependentValue, string code = null, string message = null)
+        : base(code, message)
+    {
+        DependentProperty = dependentProperty;
+        DependentValue = dependentValue;
+    }
+
+    public override IRuleBuilderOptions<T, TProperty> ApplyRule<T, TProperty>(
+        IRuleBuilder<T, TProperty> ruleBuilder, string propertyName)
+    {
+        return ruleBuilder.Must((model, value) =>
+        {
+            var dependentPropertyInfo = typeof(T).GetProperty(DependentProperty);
+            if (dependentPropertyInfo == null) return true;
+            
+            var dependentPropertyValue = dependentPropertyInfo.GetValue(model);
+            
+            // 如果依赖条件不满足，则跳过验证
+            if (!Equals(dependentPropertyValue, DependentValue)) return true;
+            
+            // 如果依赖条件满足，则当前属性不能为空
+            return value != null && !value.Equals(default(TProperty));
+        })
+        .WithErrorCode(Code)
+        .WithMessage(ErrorMessage ?? $"{propertyName}是必需的");
+    }
+}
+
+/// <summary>
+/// 集合验证特性
+/// </summary>
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Property, AllowMultiple = true)]
+public class FluentCollectionAttribute : FluentValidationAttribute
+{
+    public int MinCount { get; }
+    public int MaxCount { get; }
+    public bool AllowEmpty { get; }
+
+    public FluentCollectionAttribute(int minCount = 0, int maxCount = int.MaxValue, bool allowEmpty = true, string code = null, string message = null)
+        : base(code, message)
+    {
+        MinCount = minCount;
+        MaxCount = maxCount;
+        AllowEmpty = allowEmpty;
+    }
+
+    public override IRuleBuilderOptions<T, TProperty> ApplyRule<T, TProperty>(
+        IRuleBuilder<T, TProperty> ruleBuilder, string propertyName)
+    {
+        if (typeof(TProperty).IsAssignableFrom(typeof(System.Collections.IEnumerable)))
+        {
+            return ruleBuilder.Must(collection =>
+            {
+                if (collection == null) return AllowEmpty;
+                
+                var enumerable = collection as System.Collections.IEnumerable;
+                var count = enumerable?.Cast<object>().Count() ?? 0;
+                
+                return count >= MinCount && count <= MaxCount;
+            })
+            .WithErrorCode(Code)
+            .WithMessage(ErrorMessage ?? $"{propertyName}集合元素数量必须在{MinCount}-{MaxCount}之间");
+        }
+        
+        throw new InvalidOperationException($"FluentCollectionAttribute只能应用于集合类型的属性");
     }
 }
 
