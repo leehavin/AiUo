@@ -1,4 +1,5 @@
 using FluentValidation;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using AiUo.AspNet.Validations.FluentValidation.Models;
 
@@ -241,25 +242,96 @@ public class FluentCompareAttribute : FluentValidationAttribute
 }
 
 /// <summary>
-/// 自定义验证特性
+/// 自定义验证特性 - 通过方法名指定验证逻辑
 /// </summary>
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Property, AllowMultiple = true)]
 public class FluentCustomAttribute : FluentValidationAttribute
 {
-    public Func<object, bool> ValidationFunc { get; }
+    /// <summary>
+    /// 验证方法名称
+    /// </summary>
+    public string ValidationMethodName { get; }
 
-    public FluentCustomAttribute(Func<object, bool> validationFunc, string code = null, string message = null)
+    /// <summary>
+    /// 验证方法所在的类型（可选，默认为当前类型）
+    /// </summary>
+    public Type ValidatorType { get; }
+
+    /// <summary>
+    /// 初始化自定义验证特性
+    /// </summary>
+    /// <param name="validationMethodName">验证方法名称，方法签名必须是 static bool MethodName(object value)</param>
+    /// <param name="code">错误代码</param>
+    /// <param name="message">错误消息</param>
+    public FluentCustomAttribute(string validationMethodName, string code = null, string message = null)
         : base(code, message)
     {
-        ValidationFunc = validationFunc;
+        ValidationMethodName = validationMethodName ?? throw new ArgumentNullException(nameof(validationMethodName));
+    }
+
+    /// <summary>
+    /// 初始化自定义验证特性
+    /// </summary>
+    /// <param name="validationMethodName">验证方法名称，方法签名必须是 static bool MethodName(object value)</param>
+    /// <param name="validatorType">验证方法所在的类型</param>
+    /// <param name="code">错误代码</param>
+    /// <param name="message">错误消息</param>
+    public FluentCustomAttribute(string validationMethodName, Type validatorType, string code = null, string message = null)
+        : base(code, message)
+    {
+        ValidationMethodName = validationMethodName ?? throw new ArgumentNullException(nameof(validationMethodName));
+        ValidatorType = validatorType;
     }
 
     public override IRuleBuilderOptions<T, TProperty> ApplyRule<T, TProperty>(
         IRuleBuilder<T, TProperty> ruleBuilder, string propertyName)
     {
-        return ruleBuilder.Must(value => ValidationFunc(value))
+        return ruleBuilder.Must(value => InvokeValidationMethod(value, typeof(T)))
             .WithErrorCode(Code)
             .WithMessage(ErrorMessage ?? $"{propertyName}验证失败");
+    }
+
+    /// <summary>
+    /// 通过反射调用验证方法
+    /// </summary>
+    /// <param name="value">要验证的值</param>
+    /// <param name="modelType">模型类型</param>
+    /// <returns>验证结果</returns>
+    private bool InvokeValidationMethod(object value, Type modelType)
+    {
+        try
+        {
+            // 确定验证方法所在的类型
+            var targetType = ValidatorType ?? modelType;
+            
+            // 查找验证方法
+            var method = targetType.GetMethod(ValidationMethodName, 
+                BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic,
+                null,
+                new[] { typeof(object) },
+                null);
+
+            if (method == null)
+            {
+                throw new InvalidOperationException(
+                    $"在类型 {targetType.Name} 中找不到签名为 'static bool {ValidationMethodName}(object value)' 的方法");
+            }
+
+            if (method.ReturnType != typeof(bool))
+            {
+                throw new InvalidOperationException(
+                    $"验证方法 {ValidationMethodName} 的返回类型必须是 bool");
+            }
+
+            // 调用验证方法
+            var result = method.Invoke(null, new[] { value });
+            return (bool)result;
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException(
+                $"调用验证方法 {ValidationMethodName} 时发生错误: {ex.Message}", ex);
+        }
     }
 }
 
