@@ -87,9 +87,6 @@ public sealed class AttributeBasedValidator<T> : AbstractValidator<T>
 
         _logger?.LogDebug("Found {Count} class-level validation attributes for type '{ModelType}'",
             classAttributes.Length, modelType.Name);
-
-        // Class-level validation can be implemented here if needed
-        // For now, we focus on property-level validation
     }
 
     /// <summary>
@@ -128,12 +125,10 @@ public sealed class AttributeBasedValidator<T> : AbstractValidator<T>
     {
         try
         {
-            // Create property expression: x => x.PropertyName
             var parameter = Expression.Parameter(typeof(T), "x");
             var propertyAccess = Expression.Property(parameter, property);
             var lambda = Expression.Lambda(propertyAccess, parameter);
 
-            // Get the RuleFor method for this property type
             var ruleForMethod = typeof(AbstractValidator<T>)
                 .GetMethods(BindingFlags.Public | BindingFlags.Instance)
                 .First(m => m.Name == "RuleFor" && 
@@ -141,7 +136,6 @@ public sealed class AttributeBasedValidator<T> : AbstractValidator<T>
                            m.IsGenericMethodDefinition)
                 .MakeGenericMethod(property.PropertyType);
 
-            // Create the rule builder
             var ruleBuilder = ruleForMethod.Invoke(this, new object[] { lambda });
 
             if (ruleBuilder == null)
@@ -150,7 +144,6 @@ public sealed class AttributeBasedValidator<T> : AbstractValidator<T>
                     $"Failed to create rule builder for property '{property.Name}'");
             }
 
-            // Apply each validation attribute
             foreach (var attribute in attributes)
             {
                 ApplyValidationAttribute(attribute, ruleBuilder, property);

@@ -4,7 +4,11 @@ using AiUo.AspNet.Validations.FluentValidation.Extensions;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    // 添加FluentValidation Action Filter
+    options.Filters.Add<AiUo.AspNet.Validations.FluentValidation.Attributes.FluentValidationActionFilter>();
+});
 builder.Services.AddHttpContextAccessor();
 
 // 添加基于特性的FluentValidation支持
@@ -45,7 +49,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-// Configure model validation extensions
+// Configure model validation extensions 
 ModelValidationExtensions.ConfigureServiceProvider(app.Services);
 
 app.Run();
