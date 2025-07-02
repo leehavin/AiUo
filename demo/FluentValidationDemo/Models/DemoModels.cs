@@ -306,3 +306,87 @@ public class DepartmentModel
     [FluentEmail("DEPT_EMAIL_FORMAT", "部门邮箱格式不正确")]
     public string Email { get; set; }
 }
+
+/// <summary>
+/// 用户过滤模型 - 用于GET请求查询参数验证
+/// </summary>
+public class UserFilterModel
+{
+    /// <summary>
+    /// 页码
+    /// </summary>
+    [FluentRange(1, int.MaxValue, "PAGE_INVALID", "页码必须大于0")]
+    public int Page { get; set; } = 1;
+
+    /// <summary>
+    /// 每页大小
+    /// </summary>
+    [FluentRange(1, 100, "PAGE_SIZE_RANGE", "每页大小必须在1-100之间")]
+    public int PageSize { get; set; } = 10;
+
+    /// <summary>
+    /// 搜索关键词
+    /// </summary>
+    [FluentMaxLength(50, "KEYWORD_MAX_LENGTH", "搜索关键词最多50个字符")]
+    public string Keyword { get; set; }
+
+    /// <summary>
+    /// 最小年龄
+    /// </summary>
+    [FluentRange(0, 150, "MIN_AGE_RANGE", "最小年龄必须在0-150之间")]
+    public int? MinAge { get; set; }
+
+    /// <summary>
+    /// 最大年龄
+    /// </summary>
+    [FluentRange(0, 150, "MAX_AGE_RANGE", "最大年龄必须在0-150之间")]
+    public int? MaxAge { get; set; }
+
+    /// <summary>
+    /// 用户状态
+    /// </summary>
+    [FluentRegularExpression(@"^(active|inactive|pending)$", "STATUS_INVALID", "用户状态只能是active、inactive或pending")]
+    public string Status { get; set; }
+
+    /// <summary>
+    /// 排序字段
+    /// </summary>
+    [FluentRegularExpression(@"^(id|name|email|createTime|age)$", "SORT_BY_INVALID", "排序字段只能是id、name、email、createTime或age")]
+    public string SortBy { get; set; } = "id";
+
+    /// <summary>
+    /// 排序方向
+    /// </summary>
+    [FluentRegularExpression(@"^(asc|desc)$", "SORT_ORDER_INVALID", "排序方向只能是asc或desc")]
+    public string SortOrder { get; set; } = "asc";
+
+    /// <summary>
+    /// 注册开始日期
+    /// </summary>
+    [FluentDateRange(allowFuture: false, code: "REGISTER_START_DATE_RANGE", message: "注册开始日期不能是未来时间")]
+    public DateTime? RegisterStartDate { get; set; }
+
+    /// <summary>
+    /// 注册结束日期
+    /// </summary>
+    [FluentDateRange(allowFuture: false, code: "REGISTER_END_DATE_RANGE", message: "注册结束日期不能是未来时间")]
+    public DateTime? RegisterEndDate { get; set; }
+}
+
+/// <summary>
+/// 联系方式验证模型 - 用于手动验证GET参数
+/// </summary>
+public class ContactValidationModel
+{
+    /// <summary>
+    /// 邮箱地址
+    /// </summary>
+    [FluentEmail("EMAIL_FORMAT", "邮箱格式不正确")]
+    public string Email { get; set; }
+
+    /// <summary>
+    /// 手机号
+    /// </summary>
+    [FluentChinesePhone("PHONE_FORMAT", "手机号格式不正确")]
+    public string Phone { get; set; }
+}

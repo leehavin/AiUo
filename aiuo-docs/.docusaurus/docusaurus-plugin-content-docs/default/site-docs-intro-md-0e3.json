@@ -1,0 +1,24 @@
+{
+  "id": "intro",
+  "title": "欢迎使用 AiUo",
+  "description": "AiUo 是一个高性能、可扩展的企业级 .NET 开发框架，专为现代化应用程序开发而设计。",
+  "source": "@site/docs/intro.md",
+  "sourceDirName": ".",
+  "slug": "/",
+  "permalink": "/docs/",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/aiuo/aiuo/tree/main/docs/docs/intro.md",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 1,
+  "frontMatter": {
+    "sidebar_position": 1,
+    "slug": "/"
+  },
+  "sidebar": "tutorialSidebar",
+  "next": {
+    "title": "快速开始",
+    "permalink": "/docs/quick-start"
+  }
+}

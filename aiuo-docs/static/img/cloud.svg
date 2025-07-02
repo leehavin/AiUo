@@ -1,0 +1,113 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="currentColor">
+  <defs>
+    <linearGradient id="cloudGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#215ae5;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#4975ea;stop-opacity:1" />
+    </linearGradient>
+    <radialGradient id="cloudRadial" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.3" />
+      <stop offset="100%" style="stop-color:#215ae5;stop-opacity:0.8" />
+    </radialGradient>
+  </defs>
+  
+  <!-- Main cloud shape -->
+  <path d="M25 55 Q15 45 25 35 Q35 25 50 30 Q65 25 75 35 Q85 45 75 55 Q80 65 70 70 L30 70 Q20 65 25 55 Z" 
+        fill="url(#cloudRadial)">
+    <animate attributeName="opacity" values="0.8;1;0.8" dur="3s" repeatCount="indefinite"/>
+  </path>
+  
+  <!-- Cloud outline -->
+  <path d="M25 55 Q15 45 25 35 Q35 25 50 30 Q65 25 75 35 Q85 45 75 55 Q80 65 70 70 L30 70 Q20 65 25 55 Z" 
+        fill="none" stroke="url(#cloudGrad)" stroke-width="1.5" opacity="0.6"/>
+  
+  <!-- Container/Docker symbols -->
+  <g transform="translate(50,50)">
+    <!-- Container 1 -->
+    <rect x="-15" y="-8" width="12" height="8" rx="1" fill="#ffffff" opacity="0.9">
+      <animate attributeName="opacity" values="0.9;0.6;0.9" dur="2s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="-14" y="-7" width="10" height="2" fill="url(#cloudGrad)" opacity="0.7"/>
+    
+    <!-- Container 2 -->
+    <rect x="3" y="-8" width="12" height="8" rx="1" fill="#ffffff" opacity="0.8">
+      <animate attributeName="opacity" values="0.8;0.5;0.8" dur="2s" begin="0.5s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="4" y="-7" width="10" height="2" fill="url(#cloudGrad)" opacity="0.6"/>
+    
+    <!-- Container 3 -->
+    <rect x="-6" y="2" width="12" height="8" rx="1" fill="#ffffff" opacity="0.7">
+      <animate attributeName="opacity" values="0.7;0.4;0.7" dur="2s" begin="1s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="-5" y="3" width="10" height="2" fill="url(#cloudGrad)" opacity="0.5"/>
+  </g>
+  
+  <!-- Data flow arrows -->
+  <g opacity="0.6">
+    <!-- Upload arrows -->
+    <g fill="url(#cloudGrad)">
+      <path d="M20 75 L20 80 L18 78 M20 80 L22 78">
+        <animateTransform attributeName="transform" type="translate" values="0,10;0,0;0,10" dur="2s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0;1;0" dur="2s" repeatCount="indefinite"/>
+      </path>
+      <path d="M35 75 L35 80 L33 78 M35 80 L37 78">
+        <animateTransform attributeName="transform" type="translate" values="0,10;0,0;0,10" dur="2s" begin="0.3s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0;1;0" dur="2s" begin="0.3s" repeatCount="indefinite"/>
+      </path>
+    </g>
+    
+    <!-- Download arrows -->
+    <g fill="url(#cloudGrad)">
+      <path d="M65 75 L65 80 L63 78 M65 80 L67 78">
+        <animateTransform attributeName="transform" type="translate" values="0,-10;0,0;0,-10" dur="2s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0;1;0" dur="2s" repeatCount="indefinite"/>
+      </path>
+      <path d="M80 75 L80 80 L78 78 M80 80 L82 78">
+        <animateTransform attributeName="transform" type="translate" values="0,-10;0,0;0,-10" dur="2s" begin="0.4s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0;1;0" dur="2s" begin="0.4s" repeatCount="indefinite"/>
+      </path>
+    </g>
+  </g>
+  
+  <!-- Network connections -->
+  <g stroke="url(#cloudGrad)" stroke-width="1" opacity="0.4">
+    <!-- Connection lines -->
+    <line x1="25" y1="25" x2="35" y2="35">
+      <animate attributeName="opacity" values="0.4;0.8;0.4" dur="1.5s" repeatCount="indefinite"/>
+    </line>
+    <line x1="75" y1="25" x2="65" y2="35">
+      <animate attributeName="opacity" values="0.4;0.8;0.4" dur="1.5s" begin="0.3s" repeatCount="indefinite"/>
+    </line>
+    <line x1="15" y1="50" x2="25" y2="50">
+      <animate attributeName="opacity" values="0.4;0.8;0.4" dur="1.5s" begin="0.6s" repeatCount="indefinite"/>
+    </line>
+    <line x1="85" y1="50" x2="75" y2="50">
+      <animate attributeName="opacity" values="0.4;0.8;0.4" dur="1.5s" begin="0.9s" repeatCount="indefinite"/>
+    </line>
+  </g>
+  
+  <!-- Connection nodes -->
+  <g fill="url(#cloudGrad)">
+    <circle cx="25" cy="25" r="2" opacity="0.6">
+      <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="75" cy="25" r="2" opacity="0.5">
+      <animate attributeName="opacity" values="0.5;1;0.5" dur="2s" begin="0.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="15" cy="50" r="2" opacity="0.4">
+      <animate attributeName="opacity" values="0.4;1;0.4" dur="2s" begin="1s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="85" cy="50" r="2" opacity="0.7">
+      <animate attributeName="opacity" values="0.7;1;0.7" dur="2s" begin="1.5s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+  
+  <!-- Kubernetes/orchestration symbol -->
+  <g transform="translate(50,25)" opacity="0.5">
+    <circle cx="0" cy="0" r="3" fill="none" stroke="url(#cloudGrad)" stroke-width="1">
+      <animate attributeName="r" values="3;5;3" dur="3s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="0" cy="0" r="1" fill="url(#cloudGrad)">
+      <animate attributeName="opacity" values="0.5;1;0.5" dur="3s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+</svg>

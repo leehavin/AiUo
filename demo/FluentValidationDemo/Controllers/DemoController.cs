@@ -4,6 +4,7 @@ using AiUo.AspNet.Validations.FluentValidation.Services;
 using AiUo.AspNet.Validations.FluentValidation.Extensions;
 using FluentValidationDemo.Models;
 using AiUo.Net;
+using AiUo.AspNet.Validations.FluentValidation.Attributes;
 
 namespace FluentValidationDemo.Controllers;
 
@@ -619,6 +620,204 @@ public class DemoController : ControllerBase
                 Error = ex.Message
             });
         }
+    }
+
+    /// <summary>
+    /// 获取用户信息 - GET请求参数验证演示
+    /// </summary>
+    /// <param name="id">用户ID</param>
+    /// <param name="name">用户名</param>
+    /// <returns></returns>
+    [HttpGet("user")]
+    public async Task<IActionResult> GetUser([FluentRange(1, int.MaxValue, "USER_ID_INVALID", "用户ID必须大于0")] int id, 
+                                            [FluentLength(3, 20, "USER_NAME_LENGTH", "用户名长度必须在3-20个字符之间")] string name = null)
+    {
+        // GET请求参数验证会自动进行
+        // 如果验证失败，会自动返回BadRequest响应
+        
+        await Task.Delay(50);
+        
+        return Ok(new
+        {
+            Code = GResponseCodes.G_SUCCESS,
+            Message = "获取用户信息成功",
+            Data = new
+            {
+                UserId = id,
+                UserName = name ?? $"User{id}",
+                Email = $"user{id}@example.com",
+                Age = new Random().Next(18, 65),
+                CreateTime = DateTime.Now.AddDays(-new Random().Next(1, 365))
+            }
+        });
+    }
+
+    /// <summary>
+    /// 搜索用户 - GET请求复杂参数验证演示
+    /// </summary>
+    /// <param name="query">搜索关键词</param>
+    /// <param name="page">页码</param>
+    /// <param name="pageSize">每页大小</param>
+    /// <param name="sortBy">排序字段</param>
+    /// <returns></returns>
+    [HttpGet("users/search")]
+    public async Task<IActionResult> SearchUsers(
+        [FluentRequired("QUERY_REQUIRED", "搜索关键词不能为空")]
+        [FluentMinLength(2, "QUERY_MIN_LENGTH", "搜索关键词至少2个字符")] string query,
+        [FluentRange(1, int.MaxValue, "PAGE_INVALID", "页码必须大于0")] int page = 1,
+        [FluentRange(1, 100, "PAGE_SIZE_RANGE", "每页大小必须在1-100之间")] int pageSize = 10,
+        [FluentRegularExpression(@"^(id|name|email|createTime)$", "SORT_BY_INVALID", "排序字段只能是id、name、email或createTime")] string sortBy = "id")
+    {
+        await Task.Delay(100);
+        
+        // 模拟搜索结果
+        var users = Enumerable.Range(1, pageSize).Select(i => new
+        {
+            UserId = (page - 1) * pageSize + i,
+            UserName = $"User{query}{i}",
+            Email = $"user{query.ToLower()}{i}@example.com",
+            CreateTime = DateTime.Now.AddDays(-new Random().Next(1, 365))
+        }).ToList();
+        
+        return Ok(new
+        {
+            Code = GResponseCodes.G_SUCCESS,
+            Message = "搜索用户成功",
+            Data = new
+            {
+                Query = query,
+                Page = page,
+                PageSize = pageSize,
+                SortBy = sortBy,
+                TotalCount = 1000, // 模拟总数
+                Users = users
+            }
+        });
+    }
+
+    /// <summary>
+    /// 获取用户详情 - 路径参数验证演示
+    /// </summary>
+    /// <param name="userId">用户ID</param>
+    /// <param name="includeProfile">是否包含详细资料</param>
+    /// <returns></returns>
+    [HttpGet("users/{userId}")]
+    [FluentRange(1,int.MaxValue, "USER_ID_INVALID", "用户ID必须大于0")]
+    public async Task<IActionResult> GetUserDetail(
+        [FluentRange(1, int.MaxValue, "USER_ID_INVALID", "用户ID必须大于0")] int userId,
+        bool includeProfile = false)
+    {
+        await Task.Delay(50);
+        
+        var user = new
+        {
+            UserId = userId,
+            UserName = $"User{userId}",
+            Email = $"user{userId}@example.com",
+            Status = "Active",
+            CreateTime = DateTime.Now.AddDays(-new Random().Next(1, 365))
+        };
+        
+        object profile = null;
+        if (includeProfile)
+        {
+            profile = new
+            {
+                Age = new Random().Next(18, 65),
+                Gender = new Random().Next(0, 2) == 0 ? "Male" : "Female",
+                Phone = "138****5678",
+                Address = "北京市朝阳区",
+                Bio = "这是用户的个人简介"
+            };
+        }
+        
+        return Ok(new
+        {
+            Code = GResponseCodes.G_SUCCESS,
+            Message = "获取用户详情成功",
+            Data = new
+            {
+                User = user,
+                Profile = profile
+            }
+        });
+    }
+
+    /// <summary>
+    /// 获取用户列表 - 使用模型绑定进行GET参数验证
+    /// </summary>
+    /// <param name="filter">查询过滤条件</param>
+    /// <returns></returns>
+    [HttpGet("users")]
+    public async Task<IActionResult> GetUsers([FromQuery] UserFilterModel filter)
+    {
+        // 模型验证会自动进行
+        await Task.Delay(100);
+        
+        // 模拟用户列表
+        var users = Enumerable.Range(1, filter.PageSize).Select(i => new
+        {
+            UserId = (filter.Page - 1) * filter.PageSize + i,
+            UserName = $"User{i}",
+            Email = $"user{i}@example.com",
+            Age = new Random().Next(filter.MinAge ?? 18, filter.MaxAge ?? 65),
+            CreateTime = DateTime.Now.AddDays(-new Random().Next(1, 365))
+        }).ToList();
+        
+        return Ok(new
+        {
+            Code = GResponseCodes.G_SUCCESS,
+            Message = "获取用户列表成功",
+            Data = new
+            {
+                Filter = filter,
+                TotalCount = 1000,
+                Users = users
+            }
+        });
+    }
+
+    /// <summary>
+    /// 手动验证GET参数演示
+    /// </summary>
+    /// <param name="email">邮箱地址</param>
+    /// <param name="phone">手机号</param>
+    /// <returns></returns>
+    [HttpGet("validate-contact")]
+    public async Task<IActionResult> ValidateContact(string email, string phone)
+    {
+        // 创建临时验证模型
+        var contactModel = new ContactValidationModel
+        {
+            Email = email,
+            Phone = phone
+        };
+        
+        // 手动验证
+        var validationResult = await _validationService.ValidateAsync(contactModel);
+        
+        if (!validationResult.IsValid)
+        {
+            return BadRequest(new
+            {
+                Code = GResponseCodes.G_BAD_REQUEST,
+                Message = "联系方式验证失败",
+                Errors = validationResult.Errors.ToDictionary(e => e.PropertyName, e => e.ErrorMessage)
+            });
+        }
+        
+        return Ok(new
+        {
+            Code = GResponseCodes.G_SUCCESS,
+            Message = "联系方式验证通过",
+            Data = new
+            {
+                Email = email,
+                Phone = phone,
+                IsValid = true,
+                ValidatedAt = DateTime.Now
+            }
+        });
     }
 
     /// <summary>

@@ -1,0 +1,141 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="currentColor">
+  <defs>
+    <linearGradient id="realtimeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#215ae5;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#4975ea;stop-opacity:1" />
+    </linearGradient>
+    <radialGradient id="pulseGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#215ae5;stop-opacity:0.2" />
+    </radialGradient>
+  </defs>
+  
+  <!-- Central hub -->
+  <circle cx="50" cy="50" r="8" fill="url(#realtimeGrad)">
+    <animate attributeName="r" values="8;12;8" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  
+  <!-- Inner pulse -->
+  <circle cx="50" cy="50" r="6" fill="url(#pulseGrad)">
+    <animate attributeName="r" values="6;15;6" dur="1.5s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.8;0;0.8" dur="1.5s" repeatCount="indefinite"/>
+  </circle>
+  
+  <!-- Outer pulse rings -->
+  <g opacity="0.4">
+    <circle cx="50" cy="50" r="20" fill="none" stroke="url(#realtimeGrad)" stroke-width="1">
+      <animate attributeName="r" values="20;35;20" dur="3s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.4;0.1;0.4" dur="3s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="50" cy="50" r="30" fill="none" stroke="url(#realtimeGrad)" stroke-width="1">
+      <animate attributeName="r" values="30;45;30" dur="3s" begin="1s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.3;0.05;0.3" dur="3s" begin="1s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+  
+  <!-- Connected nodes -->
+  <g fill="url(#realtimeGrad)">
+    <!-- Top node -->
+    <circle cx="50" cy="20" r="4" opacity="0.8">
+      <animate attributeName="opacity" values="0.8;1;0.8" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    
+    <!-- Top-right node -->
+    <circle cx="71" cy="29" r="4" opacity="0.7">
+      <animate attributeName="opacity" values="0.7;1;0.7" dur="2s" begin="0.3s" repeatCount="indefinite"/>
+    </circle>
+    
+    <!-- Right node -->
+    <circle cx="80" cy="50" r="4" opacity="0.6">
+      <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" begin="0.6s" repeatCount="indefinite"/>
+    </circle>
+    
+    <!-- Bottom-right node -->
+    <circle cx="71" cy="71" r="4" opacity="0.5">
+      <animate attributeName="opacity" values="0.5;1;0.5" dur="2s" begin="0.9s" repeatCount="indefinite"/>
+    </circle>
+    
+    <!-- Bottom node -->
+    <circle cx="50" cy="80" r="4" opacity="0.4">
+      <animate attributeName="opacity" values="0.4;1;0.4" dur="2s" begin="1.2s" repeatCount="indefinite"/>
+    </circle>
+    
+    <!-- Bottom-left node -->
+    <circle cx="29" cy="71" r="4" opacity="0.3">
+      <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" begin="1.5s" repeatCount="indefinite"/>
+    </circle>
+    
+    <!-- Left node -->
+    <circle cx="20" cy="50" r="4" opacity="0.2">
+      <animate attributeName="opacity" values="0.2;1;0.2" dur="2s" begin="1.8s" repeatCount="indefinite"/>
+    </circle>
+    
+    <!-- Top-left node -->
+    <circle cx="29" cy="29" r="4" opacity="0.1">
+      <animate attributeName="opacity" values="0.1;1;0.1" dur="2s" begin="2.1s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+  
+  <!-- Connection lines -->
+  <g stroke="url(#realtimeGrad)" stroke-width="1.5" opacity="0.3">
+    <!-- Lines from center to nodes -->
+    <line x1="50" y1="50" x2="50" y2="20">
+      <animate attributeName="opacity" values="0.3;0.8;0.3" dur="2s" repeatCount="indefinite"/>
+    </line>
+    <line x1="50" y1="50" x2="71" y2="29">
+      <animate attributeName="opacity" values="0.3;0.8;0.3" dur="2s" begin="0.3s" repeatCount="indefinite"/>
+    </line>
+    <line x1="50" y1="50" x2="80" y2="50">
+      <animate attributeName="opacity" values="0.3;0.8;0.3" dur="2s" begin="0.6s" repeatCount="indefinite"/>
+    </line>
+    <line x1="50" y1="50" x2="71" y2="71">
+      <animate attributeName="opacity" values="0.3;0.8;0.3" dur="2s" begin="0.9s" repeatCount="indefinite"/>
+    </line>
+    <line x1="50" y1="50" x2="50" y2="80">
+      <animate attributeName="opacity" values="0.3;0.8;0.3" dur="2s" begin="1.2s" repeatCount="indefinite"/>
+    </line>
+    <line x1="50" y1="50" x2="29" y2="71">
+      <animate attributeName="opacity" values="0.3;0.8;0.3" dur="2s" begin="1.5s" repeatCount="indefinite"/>
+    </line>
+    <line x1="50" y1="50" x2="20" y2="50">
+      <animate attributeName="opacity" values="0.3;0.8;0.3" dur="2s" begin="1.8s" repeatCount="indefinite"/>
+    </line>
+    <line x1="50" y1="50" x2="29" y2="29">
+      <animate attributeName="opacity" values="0.3;0.8;0.3" dur="2s" begin="2.1s" repeatCount="indefinite"/>
+    </line>
+  </g>
+  
+  <!-- Data packets -->
+  <g fill="#4CAF50" opacity="0.8">
+    <!-- Packet 1 -->
+    <circle cx="50" cy="35" r="1.5">
+      <animateMotion dur="1.5s" repeatCount="indefinite" path="M0,0 L0,-15 L21,-21 L0,-15 L0,0">
+        <animate attributeName="opacity" values="0;1;0" dur="1.5s" repeatCount="indefinite"/>
+      </animateMotion>
+    </circle>
+    
+    <!-- Packet 2 -->
+    <circle cx="65" cy="50" r="1.5">
+      <animateMotion dur="1.5s" begin="0.5s" repeatCount="indefinite" path="M0,0 L15,0 L30,0 L15,0 L0,0">
+        <animate attributeName="opacity" values="0;1;0" dur="1.5s" begin="0.5s" repeatCount="indefinite"/>
+      </animateMotion>
+    </circle>
+    
+    <!-- Packet 3 -->
+    <circle cx="35" cy="65" r="1.5">
+      <animateMotion dur="1.5s" begin="1s" repeatCount="indefinite" path="M0,0 L15,15 L-21,21 L15,15 L0,0">
+        <animate attributeName="opacity" values="0;1;0" dur="1.5s" begin="1s" repeatCount="indefinite"/>
+      </animateMotion>
+    </circle>
+  </g>
+  
+  <!-- Signal waves -->
+  <g opacity="0.4" fill="none" stroke="url(#realtimeGrad)" stroke-width="1">
+    <path d="M35 35 Q50 25 65 35">
+      <animate attributeName="opacity" values="0.4;0.8;0.4" dur="1s" repeatCount="indefinite"/>
+    </path>
+    <path d="M35 65 Q50 75 65 65">
+      <animate attributeName="opacity" values="0.4;0.8;0.4" dur="1s" begin="0.5s" repeatCount="indefinite"/>
+    </path>
+  </g>
+</svg>

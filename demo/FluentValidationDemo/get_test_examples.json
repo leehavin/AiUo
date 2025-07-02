@@ -1,0 +1,99 @@
+{
+  "GET请求验证示例": {
+    "说明": "以下是FluentValidation在GET请求中的各种验证方式示例",
+    "测试用例": {
+      "1. 直接参数验证": {
+        "接口": "GET /api/demo/user?id=123&name=testuser",
+        "说明": "直接在方法参数上使用FluentValidation特性",
+        "有效请求": [
+          "GET /api/demo/user?id=1&name=validuser",
+          "GET /api/demo/user?id=999",
+          "GET /api/demo/user?id=123&name=test123"
+        ],
+        "无效请求": [
+          "GET /api/demo/user?id=0&name=validuser (id必须大于0)",
+          "GET /api/demo/user?id=-1 (id必须大于0)",
+          "GET /api/demo/user?id=1&name=ab (name长度必须在3-20个字符之间)",
+          "GET /api/demo/user?id=1&name=verylongusernamethatexceedslimit (name长度必须在3-20个字符之间)"
+        ]
+      },
+      "2. 复杂查询参数验证": {
+        "接口": "GET /api/demo/users/search",
+        "说明": "多个参数的复杂验证，包括必填、长度、范围、正则表达式等",
+        "有效请求": [
+          "GET /api/demo/users/search?query=test&page=1&pageSize=10&sortBy=id",
+          "GET /api/demo/users/search?query=admin&page=2&pageSize=20&sortBy=name",
+          "GET /api/demo/users/search?query=user123&sortBy=email"
+        ],
+        "无效请求": [
+          "GET /api/demo/users/search (缺少必填的query参数)",
+          "GET /api/demo/users/search?query=a (query长度至少2个字符)",
+          "GET /api/demo/users/search?query=test&page=0 (page必须大于0)",
+          "GET /api/demo/users/search?query=test&pageSize=101 (pageSize必须在1-100之间)",
+          "GET /api/demo/users/search?query=test&sortBy=invalid (sortBy只能是id、name、email或createTime)"
+        ]
+      },
+      "3. 路径参数验证": {
+        "接口": "GET /api/demo/users/{userId}",
+        "说明": "路径参数的验证",
+        "有效请求": [
+          "GET /api/demo/users/1",
+          "GET /api/demo/users/999?includeProfile=true",
+          "GET /api/demo/users/123?includeProfile=false"
+        ],
+        "无效请求": [
+          "GET /api/demo/users/0 (userId必须大于0)",
+          "GET /api/demo/users/-1 (userId必须大于0)"
+        ]
+      },
+      "4. 模型绑定验证": {
+        "接口": "GET /api/demo/users",
+        "说明": "使用[FromQuery]绑定到模型，自动进行验证",
+        "有效请求": [
+          "GET /api/demo/users?page=1&pageSize=10",
+          "GET /api/demo/users?page=2&pageSize=20&keyword=test&minAge=18&maxAge=65",
+          "GET /api/demo/users?status=active&sortBy=name&sortOrder=desc",
+          "GET /api/demo/users?registerStartDate=2023-01-01&registerEndDate=2023-12-31"
+        ],
+        "无效请求": [
+          "GET /api/demo/users?page=0 (page必须大于0)",
+          "GET /api/demo/users?pageSize=101 (pageSize必须在1-100之间)",
+          "GET /api/demo/users?keyword=verylongkeywordthatexceedsfiftycharacterslimitandshouldfail (keyword最多50个字符)",
+          "GET /api/demo/users?minAge=-1 (minAge必须在0-150之间)",
+          "GET /api/demo/users?maxAge=200 (maxAge必须在0-150之间)",
+          "GET /api/demo/users?status=unknown (status只能是active、inactive或pending)",
+          "GET /api/demo/users?sortBy=invalid (sortBy只能是id、name、email、createTime或age)",
+          "GET /api/demo/users?sortOrder=random (sortOrder只能是asc或desc)",
+          "GET /api/demo/users?registerStartDate=2030-01-01 (registerStartDate不能是未来时间)"
+        ]
+      },
+      "5. 手动验证GET参数": {
+        "接口": "GET /api/demo/validate-contact",
+        "说明": "在方法内部手动创建模型并验证",
+        "有效请求": [
+          "GET /api/demo/validate-contact?email=test@example.com&phone=13812345678",
+          "GET /api/demo/validate-contact?email=user@domain.com",
+          "GET /api/demo/validate-contact?phone=13987654321"
+        ],
+        "无效请求": [
+          "GET /api/demo/validate-contact?email=invalid-email (邮箱格式不正确)",
+          "GET /api/demo/validate-contact?phone=123 (手机号格式不正确)",
+          "GET /api/demo/validate-contact?email=test@&phone=abc (邮箱和手机号格式都不正确)"
+        ]
+      }
+    },
+    "验证方式总结": {
+      "1. 直接参数验证": "在方法参数上直接使用FluentValidation特性，适用于简单的参数验证",
+      "2. 模型绑定验证": "使用[FromQuery]将查询参数绑定到模型，利用FluentValidationActionFilter自动验证",
+      "3. 手动验证": "在方法内部手动调用验证服务，适用于复杂的验证逻辑",
+      "4. 路径参数验证": "对路径参数进行验证，确保URL参数的有效性"
+    },
+    "注意事项": [
+      "GET请求的参数验证依赖于FluentValidationActionFilter",
+      "确保在Program.cs中正确配置了FluentValidation服务",
+      "可选参数需要设置默认值或使用可空类型",
+      "复杂的验证逻辑建议使用模型绑定方式",
+      "手动验证适用于需要动态创建验证模型的场景"
+    ]
+  }
+}

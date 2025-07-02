@@ -1,0 +1,23 @@
+{
+  "id": "quick-start",
+  "title": "快速开始",
+  "description": "本指南将帮助您在几分钟内开始使用 AiUo 框架。",
+  "source": "@site/docs/quick-start.md",
+  "sourceDirName": ".",
+  "slug": "/quick-start",
+  "permalink": "/docs/quick-start",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/aiuo/aiuo/tree/main/docs/docs/quick-start.md",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 2,
+  "frontMatter": {
+    "sidebar_position": 2
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "欢迎使用 AiUo",
+    "permalink": "/docs/"
+  }
+}

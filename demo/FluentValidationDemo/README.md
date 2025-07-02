@@ -299,6 +299,184 @@ builder.Services.AddFluentValidationWithAttributes(options =>
 
 **功能：** 获取验证规则信息，用于前端动态验证
 
+## GET 请求验证演示 🆕
+
+### 1. 直接参数验证
+
+**接口：** `GET /api/demo/user?id={id}&name={name}`
+
+**功能：** 在方法参数上直接使用 FluentValidation 特性
+
+**测试示例：**
+```
+# 有效请求
+GET /api/demo/user?id=1&name=validuser
+GET /api/demo/user?id=999
+GET /api/demo/user?id=123&name=test123
+
+# 无效请求
+GET /api/demo/user?id=0&name=validuser     # id必须大于0
+GET /api/demo/user?id=1&name=ab           # name长度必须在3-20个字符之间
+```
+
+### 2. 复杂查询参数验证
+
+**接口：** `GET /api/demo/users/search`
+
+**功能：** 多个参数的复杂验证，包括必填、长度、范围、正则表达式等
+
+**参数说明：**
+- `query` (必填): 搜索关键词，至少2个字符
+- `page` (可选): 页码，必须大于0，默认为1
+- `pageSize` (可选): 每页大小，1-100之间，默认为10
+- `sortBy` (可选): 排序字段，只能是id、name、email或createTime
+
+**测试示例：**
+```
+# 有效请求
+GET /api/demo/users/search?query=test&page=1&pageSize=10&sortBy=id
+GET /api/demo/users/search?query=admin&page=2&pageSize=20&sortBy=name
+
+# 无效请求
+GET /api/demo/users/search                              # 缺少必填的query参数
+GET /api/demo/users/search?query=a                      # query长度至少2个字符
+GET /api/demo/users/search?query=test&page=0            # page必须大于0
+GET /api/demo/users/search?query=test&pageSize=101      # pageSize必须在1-100之间
+GET /api/demo/users/search?query=test&sortBy=invalid    # sortBy只能是指定值
+```
+
+### 3. 路径参数验证
+
+**接口：** `GET /api/demo/users/{userId}`
+
+**功能：** 路径参数的验证
+
+**参数说明：**
+- `userId` (路径参数): 用户ID，必须大于0
+- `includeProfile` (查询参数): 是否包含详细资料，布尔值
+
+**测试示例：**
+```
+# 有效请求
+GET /api/demo/users/1
+GET /api/demo/users/999?includeProfile=true
+
+# 无效请求
+GET /api/demo/users/0     # userId必须大于0
+GET /api/demo/users/-1    # userId必须大于0
+```
+
+### 4. 模型绑定验证
+
+**接口：** `GET /api/demo/users`
+
+**功能：** 使用 `[FromQuery]` 绑定到模型，自动进行验证
+
+**查询参数：**
+- `page`: 页码，必须大于0
+- `pageSize`: 每页大小，1-100之间
+- `keyword`: 搜索关键词，最多50个字符
+- `minAge`: 最小年龄，0-150之间
+- `maxAge`: 最大年龄，0-150之间
+- `status`: 用户状态，只能是active、inactive或pending
+- `sortBy`: 排序字段，只能是id、name、email、createTime或age
+- `sortOrder`: 排序方向，只能是asc或desc
+- `registerStartDate`: 注册开始日期，不能是未来时间
+- `registerEndDate`: 注册结束日期，不能是未来时间
+
+**测试示例：**
+```
+# 有效请求
+GET /api/demo/users?page=1&pageSize=10
+GET /api/demo/users?page=2&pageSize=20&keyword=test&minAge=18&maxAge=65
+GET /api/demo/users?status=active&sortBy=name&sortOrder=desc
+GET /api/demo/users?registerStartDate=2023-01-01&registerEndDate=2023-12-31
+
+# 无效请求
+GET /api/demo/users?page=0                                    # page必须大于0
+GET /api/demo/users?pageSize=101                              # pageSize必须在1-100之间
+GET /api/demo/users?keyword=verylongkeywordthatexceedslimit   # keyword最多50个字符
+GET /api/demo/users?minAge=-1                                # minAge必须在0-150之间
+GET /api/demo/users?status=unknown                           # status只能是指定值
+GET /api/demo/users?registerStartDate=2030-01-01             # 不能是未来时间
+```
+
+### 5. 手动验证GET参数
+
+**接口：** `GET /api/demo/validate-contact`
+
+**功能：** 在方法内部手动创建模型并验证
+
+**参数说明：**
+- `email`: 邮箱地址，可选，但如果提供必须符合邮箱格式
+- `phone`: 手机号，可选，但如果提供必须符合中国手机号格式
+
+**测试示例：**
+```
+# 有效请求
+GET /api/demo/validate-contact?email=test@example.com&phone=13812345678
+GET /api/demo/validate-contact?email=user@domain.com
+GET /api/demo/validate-contact?phone=13987654321
+
+# 无效请求
+GET /api/demo/validate-contact?email=invalid-email    # 邮箱格式不正确
+GET /api/demo/validate-contact?phone=123              # 手机号格式不正确
+```
+
+## GET 请求验证方式总结
+
+### 1. 直接参数验证
+```csharp
+[HttpGet("user")]
+public async Task<IActionResult> GetUser(
+    [FluentRange(1, int.MaxValue, "USER_ID_INVALID", "用户ID必须大于0")] int id,
+    [FluentLength(3, 20, "USER_NAME_LENGTH", "用户名长度必须在3-20个字符之间")] string name = null)
+{
+    // 验证会自动进行
+}
+```
+
+### 2. 模型绑定验证
+```csharp
+[HttpGet("users")]
+public async Task<IActionResult> GetUsers([FromQuery] UserFilterModel filter)
+{
+    // 模型验证会自动进行
+}
+```
+
+### 3. 手动验证
+```csharp
+[HttpGet("validate-contact")]
+public async Task<IActionResult> ValidateContact(string email, string phone)
+{
+    var contactModel = new ContactValidationModel { Email = email, Phone = phone };
+    var validationResult = await _validationService.ValidateAsync(contactModel);
+    
+    if (!validationResult.IsValid)
+    {
+        return BadRequest(validationResult.Errors);
+    }
+    
+    return Ok();
+}
+```
+
+### 验证方式选择建议
+
+1. **直接参数验证**: 适用于简单的参数验证，参数较少的情况
+2. **模型绑定验证**: 推荐方式，适用于复杂的查询条件，参数较多的情况
+3. **手动验证**: 适用于需要动态创建验证模型或复杂验证逻辑的场景
+4. **路径参数验证**: 对URL路径中的参数进行验证
+
+### 注意事项
+
+- GET请求的参数验证依赖于 `FluentValidationActionFilter`
+- 确保在 `Program.cs` 中正确配置了 FluentValidation 服务
+- 可选参数需要设置默认值或使用可空类型
+- 复杂的验证逻辑建议使用模型绑定方式
+- 手动验证适用于需要动态创建验证模型的场景
+
 ## 验证失败示例
 
 ### 1. 测试必填验证
