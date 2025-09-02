@@ -629,8 +629,7 @@ public class DemoController : ControllerBase
     /// <param name="name">用户名</param>
     /// <returns></returns>
     [HttpGet("user")]
-    public async Task<IActionResult> GetUser([FluentRange(1, int.MaxValue, "USER_ID_INVALID", "用户ID必须大于0")] int id, 
-                                            [FluentLength(3, 20, "USER_NAME_LENGTH", "用户名长度必须在3-20个字符之间")] string name = null)
+    public async Task<IActionResult> GetUser(int id, string name = null)
     {
         // GET请求参数验证会自动进行
         // 如果验证失败，会自动返回BadRequest响应
@@ -662,11 +661,10 @@ public class DemoController : ControllerBase
     /// <returns></returns>
     [HttpGet("users/search")]
     public async Task<IActionResult> SearchUsers(
-        [FluentRequired("QUERY_REQUIRED", "搜索关键词不能为空")]
-        [FluentMinLength(2, "QUERY_MIN_LENGTH", "搜索关键词至少2个字符")] string query,
-        [FluentRange(1, int.MaxValue, "PAGE_INVALID", "页码必须大于0")] int page = 1,
-        [FluentRange(1, 100, "PAGE_SIZE_RANGE", "每页大小必须在1-100之间")] int pageSize = 10,
-        [FluentRegularExpression(@"^(id|name|email|createTime)$", "SORT_BY_INVALID", "排序字段只能是id、name、email或createTime")] string sortBy = "id")
+        string query,
+        int page = 1,
+        int pageSize = 10,
+        string sortBy = "id")
     {
         await Task.Delay(100);
         
@@ -702,9 +700,8 @@ public class DemoController : ControllerBase
     /// <param name="includeProfile">是否包含详细资料</param>
     /// <returns></returns>
     [HttpGet("users/{userId}")]
-    [FluentRange(1,int.MaxValue, "USER_ID_INVALID", "用户ID必须大于0")]
     public async Task<IActionResult> GetUserDetail(
-        [FluentRange(1, int.MaxValue, "USER_ID_INVALID", "用户ID必须大于0")] int userId,
+        int userId,
         bool includeProfile = false)
     {
         await Task.Delay(50);

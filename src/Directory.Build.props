@@ -4,8 +4,8 @@
 		<Authors>AiUo</Authors>
 		<Copyright>AiUo</Copyright>
 		<RepositoryType>Git</RepositoryType>
-		<RepositoryUrl>https://github.com/AiUo/AiUo</RepositoryUrl>
-		<PackageProjectUrl>https://github.com/AiUo/AiUo</PackageProjectUrl> 
+		<RepositoryUrl>https://github.com/leehavin/AiUo</RepositoryUrl>
+		<PackageProjectUrl>https://github.com/leehavin/AiUo</PackageProjectUrl> 
 		<!--<PackageIcon>icon.png</PackageIcon>--> 
 		<!--<LangVersion>10</LangVersion>-->
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>

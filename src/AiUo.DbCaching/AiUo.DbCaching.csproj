@@ -1,9 +1,9 @@
-ï»¿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
-    <Description>æ•°æ®åº“å’ŒredisåŒæ­¥çš„å†…å­˜ç¼“å­˜åº“</Description>
+    <Description>Êı¾İ¿âºÍredisÍ¬²½µÄÄÚ´æ»º´æ¿â</Description>
     <Version>1.1.1</Version>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>embedded</DebugType>
